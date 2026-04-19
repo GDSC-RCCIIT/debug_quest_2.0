@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './CityMap.css'
 
 export default function CityMap({
@@ -7,8 +7,34 @@ export default function CityMap({
   totalBugs: _totalBugs,
   onShopClick,
   onSchoolClick,
+  onBankClick: _onBankClick,
+  onArcadeClick: _onArcadeClick,
 }) {
   const [active, setActive] = useState(null)
+  const [lockToast, setLockToast] = useState('')
+  const [lockShakeTarget, setLockShakeTarget] = useState(null)
+  const lockToastTimeoutRef = useRef(null)
+  const lockShakeTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(lockToastTimeoutRef.current)
+      window.clearTimeout(lockShakeTimeoutRef.current)
+    }
+  }, [])
+
+  const showLockedToast = (zone) => {
+    setLockToast('Access restricted. Opens in Level 2.')
+    setLockShakeTarget(zone)
+    window.clearTimeout(lockToastTimeoutRef.current)
+    window.clearTimeout(lockShakeTimeoutRef.current)
+    lockShakeTimeoutRef.current = window.setTimeout(() => {
+      setLockShakeTarget(null)
+    }, 420)
+    lockToastTimeoutRef.current = window.setTimeout(() => {
+      setLockToast('')
+    }, 2200)
+  }
 
   const handleShopClick = () => {
     setActive(active === 'shop' ? null : 'shop')
@@ -22,6 +48,14 @@ export default function CityMap({
     if (onSchoolClick) {
       onSchoolClick()
     }
+  }
+
+  const handleBankClick = () => {
+    showLockedToast('bank')
+  }
+
+  const handleArcadeClick = () => {
+    showLockedToast('arcade')
   }
 
   return (
@@ -90,11 +124,24 @@ export default function CityMap({
         <div className="building-slot bank-slot">
           <button
             type="button"
-            className={`bank-image-button ${active === 'bank' ? 'active' : ''}`}
-            onClick={() => setActive(active === 'bank' ? null : 'bank')}
-            aria-label="Open Bank District"
+            className={`bank-image-button locked-zone ${active === 'bank' ? 'active' : ''}`}
+            onClick={handleBankClick}
+            aria-label="Bank House locked for Level 2"
           >
             <img src="/bankkk.png" alt="Bank building" className="bank-image" />
+            <div className={`floating-lock ${lockShakeTarget === 'bank' ? 'shake' : ''}`} aria-hidden="true">
+              <span className="floating-lock-icon">🔒</span>
+            </div>
+            <div className="locked-entrance-glow" aria-hidden="true" />
+            <div className="locked-barrier" aria-hidden="true" />
+            <div className="scanner-beam" aria-hidden="true" />
+            <div className="warning-stripes" aria-hidden="true" />
+            <div className="entry-sparks" aria-hidden="true" />
+            <div className="locked-badge" aria-hidden="true">
+              <span className="locked-label">LOCKED</span>
+              <span className="locked-sub">Level 2</span>
+            </div>
+            <span className="locked-tooltip" role="tooltip">Unlocks in Level 2</span>
           </button>
         </div>
 
@@ -112,13 +159,33 @@ export default function CityMap({
         <div className="building-slot arcade-slot">
           <button
             type="button"
-            className={`arcade-image-button ${active === 'arcade' ? 'active' : ''}`}
-            onClick={() => setActive(active === 'arcade' ? null : 'arcade')}
-            aria-label="Open Arcade District"
+            className={`arcade-image-button locked-zone ${active === 'arcade' ? 'active' : ''}`}
+            onClick={handleArcadeClick}
+            aria-label="Arcade House locked for Level 2"
           >
             <img src="/arcade.png" alt="Arcade building" className="arcade-image" />
+            <div className={`floating-lock ${lockShakeTarget === 'arcade' ? 'shake' : ''}`} aria-hidden="true">
+              <span className="floating-lock-icon">🔒</span>
+            </div>
+            <div className="locked-entrance-glow" aria-hidden="true" />
+            <div className="locked-barrier" aria-hidden="true" />
+            <div className="scanner-beam" aria-hidden="true" />
+            <div className="warning-stripes" aria-hidden="true" />
+            <div className="entry-sparks" aria-hidden="true" />
+            <div className="locked-badge" aria-hidden="true">
+              <span className="locked-label">LOCKED</span>
+              <span className="locked-sub">Level 2</span>
+            </div>
+            <span className="locked-tooltip" role="tooltip">Unlocks in Level 2</span>
           </button>
         </div>
+
+        {lockToast ? (
+          <div className="locked-toast" role="status" aria-live="polite">
+            <span className="locked-toast-icon" aria-hidden="true">⛔</span>
+            {lockToast}
+          </div>
+        ) : null}
 
         <div className="river" />
         <div className="bridge" />

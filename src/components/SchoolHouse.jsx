@@ -1,3 +1,4 @@
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import './SchoolHouse.css'
 import LeaderboardPanel from './school-house/LeaderboardPanel'
 import PracticeRoomPanel from './school-house/PracticeRoomPanel'
@@ -32,7 +33,16 @@ export default function SchoolHouse({ onBack }) {
           </button>
 
           <div className="school-title-group">
-            <h1>School House</h1>
+            <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: 0 }}>
+              <div style={{ width: '72px', height: '72px', flexShrink: 0 }}>
+                <DotLottieReact
+                  src="https://lottie.host/24fccafc-b1b4-4b0f-ae18-f1619651f981/F5hfUTrOiv.lottie"
+                  loop
+                  autoplay
+                />
+              </div>
+              School House
+            </h1>
             <p>Knowledge system malfunction detected...</p>
           </div>
 

@@ -5,6 +5,7 @@ import ProductModal from './shop-house/ProductModal'
 import ShopToolbar from './shop-house/ShopToolbar'
 import { categories } from './shop-house/data'
 import { useDebugQuestShop } from './shop-house/hooks/useDebugQuestShop'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import './ShopHouse.css'
 
 export default function ShopHouse({ onBack }) {
@@ -21,7 +22,16 @@ export default function ShopHouse({ onBack }) {
           </button>
 
           <div className="title-group">
-            <h1>🏪 Shop House</h1>
+            <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: 0 }}>
+              <div style={{ width: '40px', height: '40px', flexShrink: 0 }}>
+                <DotLottieReact
+                  src="https://lottie.host/566df18a-682f-4e52-85bc-2c7dc9dc40d5/d4e3jkPAE2.lottie"
+                  loop
+                  autoplay
+                />
+              </div>
+              Shop House
+            </h1>
             <p>Something feels broken here...</p>
           </div>
 

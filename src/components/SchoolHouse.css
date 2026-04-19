@@ -109,9 +109,6 @@
   text-shadow: 0 0 26px #2fe6ff66;
 }
 
-.school-title-group h1::before {
-  content: '🏫 ';
-}
 
 .school-title-group p {
   margin: 4px 0 0;

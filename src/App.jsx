@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
 import CityMap from './components/CityMap'
+import Noise from './components/ui/Noise'
 import SchoolHouse from './components/SchoolHouse'
+import BankHouse from './components/BankHouse'
+import ArcadeHouse from './components/ArcadeHouse'
 import Sidebar from './components/Sidebar'
 import ShopHouse from './components/ShopHouse'
+import PixelSnow from './components/PixelSnow'
+import Lightning from './components/Lightning'
+import BlurText from './components/BlurText'
+import FuzzyText from './components/FuzzyText'
 
 function StarField() {
   return (
@@ -25,7 +32,7 @@ function StarField() {
 
 function getRouteFromHash() {
   const hashValue = window.location.hash.replace('#', '')
-  if (hashValue === 'shop' || hashValue === 'school') {
+  if (hashValue === 'shop' || hashValue === 'school' || hashValue === 'bank' || hashValue === 'arcade') {
     return hashValue
   }
 
@@ -34,8 +41,16 @@ function getRouteFromHash() {
 
 function App() {
   const [route, setRoute] = useState(getRouteFromHash)
+  const [isLoading, setIsLoading] = useState(true)
   const totalBugs = 50
   const bugsFixed = 0
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 3500)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const onHashChange = () => {
@@ -59,6 +74,34 @@ function App() {
     setRoute(nextRoute)
   }
 
+  if (isLoading) {
+    return (
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 z-0">
+          <Lightning
+            hue={260}
+            xOffset={0}
+            speed={1}
+            intensity={1}
+            size={1}
+          />
+        </div>
+        <div className="relative z-10 text-center mix-blend-plus-lighter">
+          <BlurText
+            text="GET SET DEBUG."
+            delay={150}
+            animateBy="words"
+            direction="top"
+            className="mb-2 justify-center font-pixel tracking-[0.22em] text-5xl font-black text-purple-400 drop-shadow-[0_0_15px_rgba(192,132,252,0.7)] sm:text-7xl"
+          />
+          <p className="animate-pulse text-2xl font-bold tracking-[0.1em] text-purple-100 sm:text-3xl" style={{ animationDuration: '2s' }}>
+            The city awaits its fixers.
+          </p>
+        </div>
+      </main>
+    )
+  }
+
   if (route === 'shop') {
     return <ShopHouse onBack={() => navigate('home')} />
   }
@@ -67,20 +110,36 @@ function App() {
     return <SchoolHouse onBack={() => navigate('home')} />
   }
 
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 px-3 py-6 text-slate-100 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-      <StarField />
+  if (route === 'bank') {
+    return <BankHouse onBack={() => navigate('home')} />
+  }
 
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(14,116,144,0.42),transparent_38%),radial-gradient(circle_at_80%_10%,rgba(249,115,22,0.25),transparent_36%),linear-gradient(#020617,#020617)]" />
-        <div className="absolute inset-x-0 top-20 h-32 bg-[linear-gradient(to_right,transparent_0%,rgba(71,85,105,0.45)_25%,rgba(51,65,85,0.35)_50%,rgba(71,85,105,0.45)_75%,transparent_100%)] mask-[linear-gradient(to_bottom,black,transparent)]" />
-      </div>
+  if (route === 'arcade') {
+    return <ArcadeHouse onBack={() => navigate('home')} />
+  }
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-zinc-950 px-3 py-6 text-slate-100 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <Noise className="opacity-20 mix-blend-screen" patternRefreshInterval={3} patternAlpha={18} />
+      <PixelSnow color="#e0f2fe" opacity={0.6} />
+      <StarField />
 
       <div className="relative mx-auto w-full max-w-7xl">
         <header className="mb-6 text-center sm:mb-8">
-          <p className="mb-1 text-2xl font-black uppercase tracking-[0.2em] text-orange-400 drop-shadow-[0_0_12px_rgba(251,146,60,0.5)] sm:text-4xl lg:text-5xl">
-            ⚠ GLITCH CITY
-          </p>
+          <div className="mb-1 flex justify-center px-1 sm:px-0">
+            <FuzzyText
+              color="#fb923c"
+              fontSize="clamp(1rem, 6.4vw, 3rem)"
+              baseIntensity={0.15}
+              hoverIntensity={0.3}
+              enableHover={true}
+              glitchMode={true}
+              letterSpacing={2}
+              className="mx-auto h-auto max-w-full drop-shadow-[0_0_12px_rgba(251,146,60,0.5)] font-black uppercase font-pixel"
+            >
+              ⚠ GLITCH CITY
+            </FuzzyText>
+          </div>
           <h1 className="mb-3 text-3xl font-black uppercase tracking-[0.22em] text-yellow-100 drop-shadow-[0_0_10px_rgba(234,179,8,0.45)] sm:text-5xl lg:text-6xl">
             EXPLORER
           </h1>
@@ -95,6 +154,8 @@ function App() {
             totalBugs={totalBugs}
             onShopClick={() => navigate('shop')}
             onSchoolClick={() => navigate('school')}
+            onBankClick={() => navigate('bank')}
+            onArcadeClick={() => navigate('arcade')}
           />
           <Sidebar bugsFixed={bugsFixed} totalBugs={totalBugs} />
         </section>
