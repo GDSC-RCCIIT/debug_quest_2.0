@@ -38,7 +38,7 @@
 .fountain {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 58%;
   transform: translate(-50%, -50%);
   z-index: 5;
 }
@@ -609,7 +609,7 @@
 
 .road-warning {
   position: absolute;
-  z-index: 6;
+  z-index: 15;
   font-size: clamp(12px, 2.2vw, 18px);
   color: #f5c842;
   text-shadow: 1px 1px 0 #000;
@@ -768,7 +768,7 @@
   }
 
   .fountain {
-    top: 52%;
+    top: 58%;
   }
 
   .shop-slot,

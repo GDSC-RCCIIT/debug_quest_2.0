@@ -77,38 +77,30 @@ export default function CityMap({
           <img src="/waterfall.png" alt="Waterfall" className="fountain-image" />
         </div>
 
-        <Tree style={{ left: '4%', top: '12%' }} size="lg" />
-        <Tree style={{ left: '10%', top: '8%' }} size="md" />
-        <Tree style={{ left: '6%', top: '55%' }} size="lg" />
-        <Tree style={{ left: '2%', top: '72%' }} size="md" />
-        <Tree style={{ left: '14%', top: '82%' }} size="sm" />
-        <Tree style={{ left: '22%', top: '88%' }} size="md" />
-        <Tree style={{ left: '35%', top: '90%' }} size="lg" />
-        <Tree style={{ left: '50%', top: '88%' }} size="sm" />
-        <Tree style={{ left: '62%', top: '92%' }} size="md" />
-        <Tree style={{ left: '75%', top: '87%' }} size="lg" />
-        <Tree style={{ left: '88%', top: '80%' }} size="md" />
-        <Tree style={{ left: '92%', top: '58%' }} size="sm" />
-        <Tree style={{ left: '88%', top: '10%' }} size="lg" />
-        <Tree style={{ left: '78%', top: '6%' }} size="md" />
-        <Tree style={{ left: '55%', top: '6%' }} size="sm" />
-        <Tree style={{ left: '40%', top: '4%' }} size="md" />
-        <Tree style={{ left: '25%', top: '5%' }} size="lg" />
-        <Tree style={{ left: '30%', top: '62%' }} size="sm" />
-        <Tree style={{ left: '62%', top: '60%' }} size="sm" />
+        {/* Top Center Trees */}
+        {/* Tree Layout - Balanced for districts */}
+        <Tree style={{ left: '42%', top: '15%' }} size="sm" />
+        <Tree style={{ left: '58%', top: '15%' }} size="sm" />
+        <Tree style={{ left: '12%', top: '42%' }} size="md" />
+        <Tree style={{ left: '88%', top: '42%' }} size="md" />
+        <Tree style={{ left: '10%', top: '75%' }} size="md" />
+        <Tree style={{ left: '90%', top: '75%' }} size="md" />
+        <Tree style={{ left: '40%', top: '88%' }} size="lg" />
+        <Tree style={{ left: '25%', top: '50%' }} size="sm" />
+        <Tree style={{ left: '75%', top: '50%' }} size="sm" />
+        
+        {/* Fillers for Desktop - Roadside coverage */}
+        <Tree style={{ left: '42%', top: '38%' }} size="sm" />
+        <Tree style={{ left: '58%', top: '38%' }} size="sm" />
 
-        <Bench style={{ left: '46%', top: '12%' }} size="md" />
-        <Bench style={{ left: '31%', top: '66%' }} size="md" />
-        <Bench style={{ left: '64%', top: '64%' }} size="md" />
-        <Bench style={{ left: '24%', top: '86%' }} size="lg" />
-        <Bench style={{ left: '52%', top: '86%' }} size="lg" />
-        <Bench style={{ left: '76%', top: '86%' }} size="lg" />
+        <Bench style={{ left: '24%', top: '58%' }} size="sm" />
+        <Bench style={{ left: '76%', top: '58%' }} size="sm" />
 
-        <Cone style={{ left: '48%', top: '68%' }} />
-        <Cone style={{ left: '52%', top: '72%' }} />
-        <Cone style={{ left: '36%', top: '50%' }} />
+        <Cone style={{ left: '46%', top: '50%' }} />
+        <Cone style={{ left: '54%', top: '72%' }} />
+        <Cone style={{ left: '38%', top: '58%' }} />
 
-        <RoadWarning style={{ left: '54%', top: '62%' }} />
+        <RoadWarning style={{ left: '58%', top: '54%' }} />
 
         <div className="building-slot shop-slot">
           <button
@@ -195,14 +187,22 @@ export default function CityMap({
 }
 
 function Tree({ style, size }) {
-  const sizes = { sm: 40, md: 54, lg: 72 }
-  const s = sizes[size] || 38
+  const sizes = { 
+    sm: 'clamp(28px, 4.5vw, 40px)', 
+    md: 'clamp(38px, 6vw, 54px)', 
+    lg: 'clamp(48px, 8vw, 72px)' 
+  }
+  const s = sizes[size] || sizes.md
   return <img src="/tree.png" alt="" aria-hidden="true" className="tree" style={{ ...style, width: s, height: 'auto' }} />
 }
 
 function Bench({ style, size = 'md' }) {
-  const sizes = { sm: 24, md: 36, lg: 44 }
-  const s = sizes[size] || 26
+  const sizes = { 
+    sm: 'clamp(18px, 2.8vw, 24px)', 
+    md: 'clamp(26px, 4vw, 36px)', 
+    lg: 'clamp(32px, 5vw, 44px)' 
+  }
+  const s = sizes[size] || sizes.md
   return (
     <img
       src="/sitting_bench.png"

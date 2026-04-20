@@ -70,7 +70,7 @@ const BlurText = ({
   const times = Array.from({ length: stepCount }, (_, i) => (stepCount === 1 ? 0 : i / (stepCount - 1)));
 
   return (
-    <div ref={ref} className={`blur-text ${className} flex flex-col items-center justify-center w-full`}>
+    <div ref={ref} className={`blur-text ${className} flex flex-row flex-wrap items-center justify-center w-full`}>
       {elements.map((segment, index) => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 
@@ -83,7 +83,7 @@ const BlurText = ({
 
         return (
           <motion.span
-            className="block will-change-[transform,filter,opacity] text-center mx-auto"
+            className="inline-block will-change-[transform,filter,opacity] text-center"
             key={index}
             initial={fromSnapshot}
             animate={inView ? animateKeyframes : fromSnapshot}
