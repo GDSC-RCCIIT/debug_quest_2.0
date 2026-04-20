@@ -152,7 +152,7 @@
 
 .school-slot {
   left: 2%;
-  bottom: 7%;
+  bottom: 5.5%;
   width: 30%;
 }
 
@@ -649,7 +649,10 @@
     width: 34%;
   }
 
-  .school-slot,
+  .school-slot {
+    bottom: 7.5%;
+  }
+  
   .arcade-slot {
     bottom: 9%;
   }
@@ -657,7 +660,8 @@
 
 @media (max-width: 920px) {
   .city-map {
-    min-height: clamp(320px, 62vw, 440px);
+    aspect-ratio: 1.6 / 1;
+    min-height: clamp(380px, 62vw, 480px);
   }
 
   .shop-image,
@@ -683,31 +687,32 @@
   }
 
   .city-map {
-    min-height: clamp(290px, 72vw, 420px);
+    aspect-ratio: 1.4 / 1;
+    min-height: clamp(360px, 75vw, 460px);
   }
 
   .shop-slot {
     left: 4%;
     top: 4%;
-    width: 39%;
+    width: 36%;
   }
 
   .bank-slot {
     right: 4%;
     top: 4%;
-    width: 36%;
+    width: 33%;
   }
 
   .school-slot {
     left: 2%;
-    bottom: 3%;
-    width: 37%;
+    bottom: 1.5%;
+    width: 34%;
   }
 
   .arcade-slot {
     right: 2%;
     bottom: 3%;
-    width: 38%;
+    width: 35%;
   }
 
   .tree {
@@ -717,14 +722,15 @@
 
 @media (max-width: 560px) {
   .city-map {
-    min-height: clamp(260px, 78vw, 360px);
+    min-height: clamp(340px, 85vw, 460px);
+    aspect-ratio: 1.2 / 1;
   }
 
   .shop-slot,
   .bank-slot,
   .school-slot,
   .arcade-slot {
-    width: 41%;
+    width: 33%;
   }
 
   .shop-slot,
@@ -732,7 +738,10 @@
     top: 5%;
   }
 
-  .school-slot,
+  .school-slot {
+    bottom: 2.5%;
+  }
+  
   .arcade-slot {
     bottom: 4%;
   }
@@ -754,7 +763,8 @@
 
 @media (max-width: 420px) {
   .city-map {
-    min-height: 250px;
+    min-height: 380px;
+    aspect-ratio: 1 / 1;
   }
 
   .fountain {
@@ -765,7 +775,7 @@
   .bank-slot,
   .school-slot,
   .arcade-slot {
-    width: 42.5%;
+    width: 36%;
   }
 
   .locked-badge {

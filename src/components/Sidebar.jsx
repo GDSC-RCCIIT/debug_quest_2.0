@@ -88,22 +88,7 @@ export default function Sidebar({ bugsFixed, totalBugs }) {
         </div>
       </div>
 
-      <div className="sidebar-divider" />
 
-      <div className="panel bugs-panel">
-        <div className="bugs-header">
-          <span className="wrench">🔧</span>
-          <span className="bugs-title">Bugs Fixed: {bugsFixed} / {totalBugs}</span>
-        </div>
-        <div className="progress-track">
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="progress-dots-row">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className={`prog-dot ${i < Math.floor(pct / 10) ? 'active' : ''}`} />
-          ))}
-        </div>
-      </div>
 
       <div className="corner-dots">
         {Array.from({ length: 6 }).map((_, i) => (
