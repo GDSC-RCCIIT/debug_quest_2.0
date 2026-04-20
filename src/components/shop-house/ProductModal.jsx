@@ -11,7 +11,15 @@ export default function ProductModal({ product, onClose }) {
         </button>
 
         <div className="modal-media" style={{ '--card-accent': product.accent }}>
-          <span>PREVIEW</span>
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+            />
+          ) : (
+            <span>PREVIEW</span>
+          )}
         </div>
 
         <h3>{product.name}</h3>

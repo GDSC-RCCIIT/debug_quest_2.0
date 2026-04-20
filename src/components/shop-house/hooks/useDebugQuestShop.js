@@ -14,8 +14,21 @@ export function useDebugQuestShop() {
   const [sortDirection, setSortDirection] = useState('asc')
   const [page, setPage] = useState(1)
   const [wishlist, setWishlist] = useState([])
-  const [cart, setCart] = useState([])
-  const [lockedAdd, setLockedAdd] = useState([])
+  const [cart, setCart] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('shop_cart')) || []
+    } catch {
+      return []
+    }
+  })
+  const [lockedAdd, setLockedAdd] = useState(() => {
+    try {
+      const temp = JSON.parse(localStorage.getItem('shop_cart')) || []
+      return temp.map((i) => i.id)
+    } catch {
+      return []
+    }
+  })
   const [couponInput, setCouponInput] = useState('')
   const [couponCode, setCouponCode] = useState('')
   const [couponError, setCouponError] = useState('')
@@ -26,7 +39,16 @@ export function useDebugQuestShop() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalProduct, setModalProduct] = useState(null)
   const [checkoutError, setCheckoutError] = useState('')
-  const rowCounterRef = useRef(1)
+  const rowCounterRef = useRef(
+    (() => {
+      try {
+        const temp = JSON.parse(localStorage.getItem('shop_cart')) || []
+        return temp.length > 0 ? Math.max(...temp.map((i) => i.rowId || 0)) + 1 : 1
+      } catch {
+        return 1
+      }
+    })()
+  )
   const previousModalProductRef = useRef(null)
 
   useFakeCatalogRequest(activeCategory, search, sortDirection)
@@ -89,6 +111,10 @@ export function useDebugQuestShop() {
     return () => window.clearTimeout(timer)
   }, [toast])
 
+  useEffect(() => {
+    localStorage.setItem('shop_cart', JSON.stringify(cart))
+  }, [cart])
+
   const wishlistSet = new Set(wishlist)
   const lockedAddSet = new Set(lockedAdd)
 
@@ -98,22 +124,41 @@ export function useDebugQuestShop() {
         const product = products.find((item) => item.id === entry.id)
         if (!product) return null
 
+        let resolvedRef = { ...product }
+
+        if (entry._vIdx !== undefined && entry._vIdx >= 0) {
+          const shiftItem = renderedProducts[entry._vIdx] || filteredProducts[entry._vIdx]
+          if (shiftItem && shiftItem.id !== product.id) {
+            resolvedRef = {
+              ...product,
+              name: (entry._vIdx % 2 === 0) ? shiftItem.name : product.name,
+              image: (entry.rowId % 2 !== 0) ? shiftItem.image : product.image,
+              category: shiftItem.category,
+              price: (entry.rowId % 3 === 0) ? shiftItem.price : product.price,
+            }
+          }
+        }
+
         return {
           rowId: entry.rowId,
-          ...product,
+          ...resolvedRef,
           qty: entry.qty,
           billedQty: entry.billedQty,
-          lineTotal: product.price * entry.billedQty,
+          lineTotal: resolvedRef.price * entry.billedQty,
         }
       })
       .filter(Boolean)
 
     return joined.sort((a, b) => a.name.localeCompare(b.name))
-  }, [cart])
+  }, [cart, renderedProducts, filteredProducts])
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0)
-  const discountValue = Math.round(subtotal * discountRate)
-  const total = Math.max(0, subtotal - discountValue)
+  const visualRate = couponCode ? (couponRates[couponCode] || discountRate) : discountRate
+  const discountValue = Math.round(subtotal * visualRate)
+  
+  const total = useMemo(() => {
+    return Math.max(0, subtotal - discountValue)
+  }, [subtotal])
 
   const checkoutStockMap = useMemo(() => {
     return new Map(renderedProducts.map((item) => [item.id, item.stock]))
@@ -145,9 +190,11 @@ export function useDebugQuestShop() {
   }
 
   const addToCart = (product) => {
+    const visibleIndex = renderedProducts.findIndex((p) => p.id === product.id)
+
     window.setTimeout(() => {
       setCart((previous) => {
-        return [...previous, { rowId: rowCounterRef.current++, id: product.id, qty: 1, billedQty: 1 }]
+        return [...previous, { rowId: rowCounterRef.current++, id: product.id, _vIdx: visibleIndex, qty: 1, billedQty: 1 }]
       })
     }, 40)
 

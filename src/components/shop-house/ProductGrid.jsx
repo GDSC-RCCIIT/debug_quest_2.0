@@ -31,7 +31,15 @@ export default function ProductGrid({
             </button>
 
             <button type="button" className="media-placeholder" onClick={() => onOpenProductModal(product)}>
-              <span>IMG</span>
+              {product.image ? (
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+                />
+              ) : (
+                <span>IMG</span>
+              )}
             </button>
 
             <div className="product-meta">

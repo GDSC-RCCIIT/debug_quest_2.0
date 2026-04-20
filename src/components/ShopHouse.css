@@ -619,9 +619,11 @@
   background:
     radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--card-accent) 28%, transparent) 0%, transparent 48%),
     linear-gradient(135deg, #163566 0%, #0b1c3c 100%);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 10px;
+  overflow: hidden;
 }
 
 .modal-media span {
