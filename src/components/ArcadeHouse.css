@@ -12,7 +12,7 @@
 
 .arcade-loader {
   position: fixed;
-  inset: 0;
+  inset: 0; 
   z-index: 9;
   display: grid;
   place-items: center;
