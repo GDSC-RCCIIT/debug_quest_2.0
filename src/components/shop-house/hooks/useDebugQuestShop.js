@@ -164,7 +164,7 @@ export function useDebugQuestShop() {
     return new Map(renderedProducts.map((item) => [item.id, item.stock]))
   }, [renderedProducts])
 
-  const onSearchChange = (value) => {
+  const onSearchChange = (value) => { 
     setSearch(value)
     setPage(1)
 
