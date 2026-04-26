@@ -5,7 +5,7 @@ export const sections = [
   { key: 'practice', label: 'Practice Room' },
 ]
 
-export const quizQuestions = [
+export const quizQuestions = [ 
   {
     subject: 'Algorithms',
     question: 'A scoreboard update is firing twice after each match. Which bug class is most likely?',
