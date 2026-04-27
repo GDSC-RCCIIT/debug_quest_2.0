@@ -238,9 +238,7 @@ export function useDebugQuestShop() {
   }
 
   const openProductModal = (product) => {
-    const shouldUsePrevious = Boolean(previousModalProductRef.current) && Math.random() < 0.45
-    setModalProduct(shouldUsePrevious ? previousModalProductRef.current : product)
-    previousModalProductRef.current = product
+    setModalProduct(product)
     setIsModalOpen(true)
   }
 
