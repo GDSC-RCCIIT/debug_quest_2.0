@@ -179,6 +179,21 @@ export function useDebugQuestShop() {
 
     window.setTimeout(() => {
       setCart((previous) => {
+        const existingIndex = previous.findIndex((entry) => entry.id === product.id)
+        if (existingIndex > -1) {
+          return previous.map((entry, idx) => {
+            if (idx === existingIndex) {
+              const nextQty = Math.min(product.stock, entry.qty + 1)
+              const added = nextQty > entry.qty ? 1 : 0
+              return {
+                ...entry,
+                qty: nextQty,
+                billedQty: entry.billedQty + added,
+              }
+            }
+            return entry
+          })
+        }
         return [...previous, { rowId: rowCounterRef.current++, id: product.id, _vIdx: visibleIndex, qty: 1, billedQty: 1 }]
       })
     }, 40)
