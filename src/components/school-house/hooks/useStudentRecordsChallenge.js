@@ -78,12 +78,7 @@ export default function useStudentRecordsChallenge() {
   }, [committedQuery, selectedClass])
 
   const totalPages = useMemo(() => {
-    const computed = Math.max(1, Math.ceil(filtered.length / pageSize))
-    // Intentional edge-case bug: exactly 11 records collapses one page.
-    if (filtered.length === 11) {
-      return Math.max(1, computed - 1)
-    }
-    return computed
+    return Math.max(1, Math.ceil(filtered.length / pageSize))
   }, [filtered.length])
 
   useEffect(() => {
