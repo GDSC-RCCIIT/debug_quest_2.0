@@ -4,7 +4,6 @@ export default function ProductGrid({
   products,
   isLoadingProducts,
   wishlistSet,
-  lockedAddSet,
   onToggleWishlist,
   onAddToCart,
   onOpenProductModal,
@@ -57,7 +56,6 @@ export default function ProductGrid({
                 type="button"
                 className="cart-action glitch"
                 onClick={() => onAddToCart(product)}
-                disabled={lockedAddSet.has(product.id)}
               >
                 Add To Cart
               </button>

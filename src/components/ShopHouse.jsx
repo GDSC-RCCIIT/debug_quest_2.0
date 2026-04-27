@@ -56,7 +56,6 @@ export default function ShopHouse({ onBack }) {
               products={shop.pagedProducts}
               isLoadingProducts={shop.isLoadingProducts}
               wishlistSet={shop.wishlistSet}
-              lockedAddSet={shop.lockedAddSet}
               onToggleWishlist={shop.toggleWishlist}
               onAddToCart={shop.addToCart}
               onOpenProductModal={shop.openProductModal}
