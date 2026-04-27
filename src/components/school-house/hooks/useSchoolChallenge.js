@@ -82,17 +82,6 @@ export default function useSchoolChallenge() {
   }, [currentQuestionIndex])
 
   useEffect(() => {
-    function handleVisibilityChange() {
-      if (document.visibilityState === 'visible') {
-        setSecondsLeft(QUESTION_TIME_SECONDS)
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [])
-
-  useEffect(() => {
     if (activeSection !== 'quiz' || isSubmitted || secondsLeft === 0) return undefined
 
     const timerId = window.setInterval(() => {
