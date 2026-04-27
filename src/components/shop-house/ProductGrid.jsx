@@ -4,6 +4,7 @@ export default function ProductGrid({
   products,
   isLoadingProducts,
   wishlistSet,
+  cartQtyMap,
   onToggleWishlist,
   onAddToCart,
   onOpenProductModal,
@@ -18,50 +19,56 @@ export default function ProductGrid({
       ) : null}
 
       <div className="products-grid">
-        {products.map((product) => (
-          <article key={product.id} className="product-card" style={{ '--card-accent': product.accent }}>
-            <button
-              type="button"
-              className="wishlist"
-              onClick={() => onToggleWishlist(product.id)}
-              aria-label={`Wishlist ${product.name}`}
-            >
-              {wishlistSet.has(product.id) ? '♥' : '♡'}
-            </button>
+        {products.map((product) => {
+          const reservedQty = cartQtyMap?.get(product.id) ?? 0
+          const availableStock = Math.max(0, product.stock - reservedQty)
+          const badgeClass = availableStock <= 0 ? 'out' : availableStock <= 3 ? 'low' : ''
 
-            <button type="button" className="media-placeholder" onClick={() => onOpenProductModal(product)}>
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
-                />
-              ) : (
-                <span>IMG</span>
-              )}
-            </button>
-
-            <div className="product-meta">
-              <h3>
-                <button type="button" className="title-link" onClick={() => onOpenProductModal(product)}>
-                  {product.name}
-                </button>
-              </h3>
-              <p>{formatINR(product.price)}</p>
-            </div>
-
-            <div className="card-bottom">
-              <span className={`stock-badge ${product.stock <= 3 ? 'low' : ''}`}>{stockLabel(product.stock)}</span>
+          return (
+            <article key={product.id} className="product-card" style={{ '--card-accent': product.accent }}>
               <button
                 type="button"
-                className="cart-action glitch"
-                onClick={() => onAddToCart(product)}
+                className="wishlist"
+                onClick={() => onToggleWishlist(product.id)}
+                aria-label={`Wishlist ${product.name}`}
               >
-                Add To Cart
+                {wishlistSet.has(product.id) ? '♥' : '♡'}
               </button>
-            </div>
-          </article>
-        ))}
+
+              <button type="button" className="media-placeholder" onClick={() => onOpenProductModal(product)}>
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+                  />
+                ) : (
+                  <span>IMG</span>
+                )}
+              </button>
+
+              <div className="product-meta">
+                <h3>
+                  <button type="button" className="title-link" onClick={() => onOpenProductModal(product)}>
+                    {product.name}
+                  </button>
+                </h3>
+                <p>{formatINR(product.price)}</p>
+              </div>
+
+              <div className="card-bottom">
+                <span className={`stock-badge ${badgeClass}`}>{stockLabel(availableStock)}</span>
+                <button
+                  type="button"
+                  className="cart-action glitch"
+                  onClick={() => onAddToCart(product)}
+                >
+                  Add To Cart
+                </button>
+              </div>
+            </article>
+          )
+        })}
       </div>
     </>
   )

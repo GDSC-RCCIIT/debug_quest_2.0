@@ -150,6 +150,8 @@ export function useDebugQuestShop() {
     return Math.max(0, subtotal - discountValue)
   }, [subtotal])
 
+  const cartQtyMap = useMemo(() => new Map(cart.map((entry) => [entry.id, entry.qty])), [cart])
+
   const checkoutStockMap = useMemo(() => {
     return new Map(renderedProducts.map((item) => [item.id, item.stock]))
   }, [renderedProducts])
@@ -309,6 +311,7 @@ export function useDebugQuestShop() {
     subtotal,
     discountValue,
     total,
+    cartQtyMap,
     onSearchChange,
     onCategoryChange,
     onSortChange,
