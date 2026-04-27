@@ -36,6 +36,7 @@ export function formatINR(value) {
 }
 
 export function stockLabel(stock) {
+  if (stock <= 0) return 'OUT OF STOCK'
   if (stock <= 3) return 'LOW STOCK'
   return 'IN STOCK'
 }

@@ -62,6 +62,7 @@ export default function ProductGrid({
                   type="button"
                   className="cart-action glitch"
                   onClick={() => onAddToCart(product)}
+                  disabled={availableStock <= 0}
                 >
                   Add To Cart
                 </button>
