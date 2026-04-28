@@ -8,7 +8,7 @@ const couponRates = {
 
 export function useDebugQuestShop() {
   const [search, setSearch] = useState('')
-  
+
   const [activeCategory, setActiveCategory] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
   const [page, setPage] = useState(1)
@@ -142,7 +142,7 @@ export function useDebugQuestShop() {
   const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0)
   const visualRate = couponCode ? (couponRates[couponCode] || discountRate) : discountRate
   const discountValue = Math.round(subtotal * visualRate)
-  
+
   const total = useMemo(() => {
     return Math.max(0, subtotal - discountValue)
   }, [subtotal])
@@ -151,11 +151,11 @@ export function useDebugQuestShop() {
     return new Map(products.map((item) => [item.id, item.stock]))
   }, [])
 
-  const onSearchChange = (value) => { 
+  const onSearchChange = (value) => {
     setSearch(value)
     setPage(1)
 
-    
+
   }
 
   const onCategoryChange = (category) => {
@@ -207,9 +207,12 @@ export function useDebugQuestShop() {
           if (entry.rowId !== rowId) return entry
 
           if (delta > 0) {
+            const nextQty = Math.min(product.stock, entry.qty + 1)
+
             return {
               ...entry,
-              qty: Math.min(product.stock, entry.qty + 1),
+              qty: nextQty,
+              billedQty: nextQty,
             }
           }
 
@@ -232,9 +235,7 @@ export function useDebugQuestShop() {
   }
 
   const openProductModal = (product) => {
-    const shouldUsePrevious = Boolean(previousModalProductRef.current) && Math.random() < 0.45
-    setModalProduct(shouldUsePrevious ? previousModalProductRef.current : product)
-    previousModalProductRef.current = product
+    setModalProduct(product)
     setIsModalOpen(true)
   }
 
