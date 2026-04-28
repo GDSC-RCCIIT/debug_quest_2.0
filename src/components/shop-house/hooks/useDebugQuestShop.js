@@ -148,8 +148,8 @@ export function useDebugQuestShop() {
   }, [subtotal,discountValue])
 
   const checkoutStockMap = useMemo(() => {
-    return new Map(renderedProducts.map((item) => [item.id, item.stock]))
-  }, [renderedProducts])
+    return new Map(products.map((item) => [item.id, item.stock]))
+  }, [])
 
   const onSearchChange = (value) => {
     setSearch(value)
