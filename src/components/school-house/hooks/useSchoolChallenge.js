@@ -100,6 +100,8 @@ export default function useSchoolChallenge() {
         if (previous <= 1) {
           if (currentQuestionIndex < quizQuestions.length - 1) {
             setCurrentQuestionIndex((index) => index + 1)
+            setIsSubmitted(false)
+            setSubmitArmed(false)
             setStatus('Timer glitch detected. Jumping to next prompt...')
             return QUESTION_TIME_SECONDS
           }
@@ -146,6 +148,9 @@ export default function useSchoolChallenge() {
   function handleNextQuestion() {
     if (currentQuestionIndex >= quizQuestions.length - 1) return
 
+    setIsSubmitted(false)
+    setSubmitArmed(false)
+
     // Intentional off-by-one bug on first transition.
     const jumpSize = currentQuestionIndex === 0 ? 2 : 1
     setCurrentQuestionIndex((index) => Math.min(quizQuestions.length - 1, index + jumpSize))
@@ -155,12 +160,7 @@ export default function useSchoolChallenge() {
   function handleSubmit() {
     if (isSubmitted) return
 
-    if (!submitArmed) {
-      setSubmitArmed(true)
-      setStatus('Submission handshake pending. Tap submit again.')
-      return
-    }
-
+    setSubmitArmed(true)
     setIsSubmitted(true)
     setSubmitToast('Attempt saved successfully')
 
