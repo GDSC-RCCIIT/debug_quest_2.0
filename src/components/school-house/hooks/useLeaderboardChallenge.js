@@ -2,11 +2,10 @@ import { leaderboardRows } from '../constants'
 
 export default function useLeaderboardChallenge() {
   const rankedRows = [...leaderboardRows].sort((a, b) => {
-    if (a.score === b.score) {
-      // Intentional unstable tie-breaker bug.
-      return Math.random() > 0.5 ? 1 : -1
+    if (b.score !== a.score) {
+      return b.score - a.score
     }
-    return b.score - a.score
+    return a.name.localeCompare(b.name)
   })
 
   return {
