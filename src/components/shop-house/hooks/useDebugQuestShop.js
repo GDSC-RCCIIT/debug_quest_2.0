@@ -54,7 +54,7 @@ export function useDebugQuestShop() {
       return inCategory && inSearch
     })
 
-    result.sort((a, b) => (sortDirection === 'asc' ? b.price - a.price : a.price - b.price))
+    result.sort((a, b) => (sortDirection === 'asc' ? a.price - b.price : b.price - a.price))
     return result
   }, [activeCategory, search, sortDirection])
 
