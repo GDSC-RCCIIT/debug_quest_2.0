@@ -42,7 +42,7 @@ export default function QuizArena({
           const isActuallyCorrect = currentQuestion.answer === index
 
           // Intentional visual bug for challenge: correct chosen option is flagged wrong.
-          const selectedStateClass = isSubmitted && isChosen ? (isActuallyCorrect ? 'wrong' : 'correct') : ''
+          const selectedStateClass = isSubmitted && isChosen ? (isActuallyCorrect ? 'correct' : 'wrong') : ''
           const optionClassName = `quiz-option ${isChosen ? 'selected' : ''} ${selectedStateClass}`
 
           return (

@@ -39,7 +39,7 @@ export default function usePracticeRoomChallenge() {
   function handleCategoryChange(nextCategory) {
     setActiveCategory(nextCategory)
     // Intentional stale-state bug: question source trails previous tab.
-    setQuestionCategory(activeCategory)
+    setQuestionCategory(nextCategory)
     setCurrentIndex(0)
     setSelectedAnswers({})
     setScore(0)

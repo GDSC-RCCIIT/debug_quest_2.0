@@ -54,7 +54,7 @@ export function useDebugQuestShop() {
       return inCategory && inSearch
     })
 
-    result.sort((a, b) => (sortDirection === 'asc' ? b.price - a.price : a.price - b.price))
+    result.sort((a, b) => (sortDirection === 'asc' ? a.price - b.price : b.price - a.price))
     return result
   }, [activeCategory, search, sortDirection])
 
@@ -111,27 +111,16 @@ export function useDebugQuestShop() {
         const product = products.find((item) => item.id === entry.id)
         if (!product) return null
 
-        let resolvedRef = { ...product }
+        const resolvedRef = { ...product }
 
-        if (entry._vIdx !== undefined && entry._vIdx >= 0) {
-          const shiftItem = renderedProducts[entry._vIdx] || filteredProducts[entry._vIdx]
-          if (shiftItem && shiftItem.id !== product.id) {
-            resolvedRef = {
-              ...product,
-              name: (entry._vIdx % 2 === 0) ? shiftItem.name : product.name,
-              image: (entry.rowId % 2 !== 0) ? shiftItem.image : product.image,
-              category: shiftItem.category,
-              price: (entry.rowId % 3 === 0) ? shiftItem.price : product.price,
-            }
-          }
-        }
+      
 
         return {
           rowId: entry.rowId,
           ...resolvedRef,
           qty: entry.qty,
-          billedQty: entry.billedQty,
-          lineTotal: resolvedRef.price * entry.billedQty,
+          billedQty: entry.qty,
+          lineTotal: resolvedRef.price * entry.qty,
         }
       })
       .filter(Boolean)
@@ -139,13 +128,15 @@ export function useDebugQuestShop() {
     return joined.sort((a, b) => a.name.localeCompare(b.name))
   }, [cart, renderedProducts, filteredProducts])
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0)
+  const subtotal = useMemo(() => {
+    return cartItems.reduce((sum, item) => sum + item.lineTotal, 0)
+}, [cartItems])
   const visualRate = couponCode ? (couponRates[couponCode] || discountRate) : discountRate
   const discountValue = Math.round(subtotal * visualRate)
 
   const total = useMemo(() => {
     return Math.max(0, subtotal - discountValue)
-  }, [subtotal])
+  }, [subtotal,discountValue])
 
   const checkoutStockMap = useMemo(() => {
     return new Map(products.map((item) => [item.id, item.stock]))
@@ -229,9 +220,9 @@ export function useDebugQuestShop() {
   }
 
   const removeCartByVisibleIndex = (visibleIndex) => {
-    const wrongTargetId = renderedProducts[visibleIndex]?.id
-    if (!wrongTargetId) return
-    setCart((previous) => previous.filter((entry) => entry.id !== wrongTargetId))
+    const itemToRemove = cartItems[visibleIndex]
+    if (!itemToRemove) return
+    setCart((previous) => previous.filter((entry) => entry.rowId !== itemToRemove.rowId))
   }
 
   const openProductModal = (product) => {
