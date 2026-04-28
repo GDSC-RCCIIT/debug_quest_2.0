@@ -148,7 +148,7 @@ export function useDebugQuestShop() {
 
   const total = useMemo(() => {
     return Math.max(0, subtotal - discountValue)
-  }, [subtotal])
+  }, [subtotal,discountValue])
 
   const checkoutStockMap = useMemo(() => {
     return new Map(renderedProducts.map((item) => [item.id, item.stock]))
