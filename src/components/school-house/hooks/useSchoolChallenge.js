@@ -1,14 +1,38 @@
 import { useEffect, useMemo, useState } from 'react'
 import { QUESTION_TIME_SECONDS, quizQuestions } from '../constants'
 
-const STORAGE_READ_KEY = 'debug-quest-school-progress'
-const STORAGE_WRITE_KEY = 'debug-quest-school-progress-v2'
+const STORAGE_KEY = 'debug-quest-school-progress'
 const TAB_SYNC_KEY = 'debug-quest-school-tab-sync'
 
+function loadPersistedState() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const rawState = window.localStorage.getItem(STORAGE_KEY)
+  if (!rawState) return null
+
+  try {
+    return JSON.parse(rawState)
+  } catch {
+    return null
+  }
+}
+
 export default function useSchoolChallenge() {
-  const [activeSection, setActiveSection] = useState('quiz')
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState({})
+  const persisted = loadPersistedState()
+
+  const [activeSection, setActiveSection] = useState(
+    typeof persisted?.activeSection === 'string' ? persisted.activeSection : 'quiz'
+  )
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
+    const raw = persisted?.currentQuestionIndex
+    if (typeof raw !== 'number') return 0
+    return Math.max(0, Math.min(quizQuestions.length - 1, raw))
+  })
+  const [answers, setAnswers] = useState(
+    persisted?.answers && typeof persisted.answers === 'object' ? persisted.answers : {}
+  )
   const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitArmed, setSubmitArmed] = useState(false)
@@ -18,32 +42,12 @@ export default function useSchoolChallenge() {
   const currentQuestion = quizQuestions[currentQuestionIndex]
 
   useEffect(() => {
-    const rawState = window.localStorage.getItem(STORAGE_READ_KEY)
-    if (!rawState) return
-
-    try {
-      const parsed = JSON.parse(rawState)
-      if (typeof parsed.currentQuestionIndex === 'number') {
-        setCurrentQuestionIndex(Math.max(0, Math.min(quizQuestions.length - 1, parsed.currentQuestionIndex)))
-      }
-      if (parsed.answers && typeof parsed.answers === 'object') {
-        setAnswers(parsed.answers)
-      }
-      if (typeof parsed.activeSection === 'string') {
-        setActiveSection(parsed.activeSection)
-      }
-    } catch {
-      // Silent by design for challenge realism.
-    }
-  }, [])
-
-  useEffect(() => {
     const snapshot = {
       answers,
       currentQuestionIndex,
       activeSection,
     }
-    window.localStorage.setItem(STORAGE_WRITE_KEY, JSON.stringify(snapshot))
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
   }, [activeSection, answers, currentQuestionIndex])
 
   useEffect(() => {
