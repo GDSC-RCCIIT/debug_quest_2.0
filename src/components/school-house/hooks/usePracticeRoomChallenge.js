@@ -19,7 +19,7 @@ export default function usePracticeRoomChallenge() {
   const currentQuestion = questionSet[currentIndex] ?? questionSet[0]
 
   useEffect(() => {
-    if (!isRunning) return undefined
+    if (!isRunning || isPaused) return undefined
 
     const timerId = window.setInterval(() => {
       setSecondsLeft((previous) => {
@@ -32,7 +32,7 @@ export default function usePracticeRoomChallenge() {
     }, 1000)
 
     return () => window.clearInterval(timerId)
-  }, [isRunning])
+  }, [isRunning, isPaused])
 
   const displayedSeconds = isPaused ? pausedDisplayTime : secondsLeft
 
