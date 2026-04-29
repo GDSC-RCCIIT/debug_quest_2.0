@@ -65,11 +65,13 @@ export default function useSchoolChallenge() {
       answers,
       submittedAnswers,
       currentQuestionIndex,
+      isSubmitted,
+      secondsLeft,
       at: Date.now(),
     }
 
     window.localStorage.setItem(TAB_SYNC_KEY, JSON.stringify(syncPayload))
-  }, [answers, submittedAnswers, currentQuestionIndex])
+  }, [answers, submittedAnswers, currentQuestionIndex, isSubmitted, secondsLeft])
 
   useEffect(() => {
     function onStorage(event) {
@@ -88,6 +90,14 @@ export default function useSchoolChallenge() {
 
         if (typeof payload.currentQuestionIndex === 'number') {
           setCurrentQuestionIndex(Math.max(0, Math.min(quizQuestions.length - 1, payload.currentQuestionIndex)))
+        }
+
+        if (typeof payload.isSubmitted === 'boolean') {
+          setIsSubmitted(payload.isSubmitted)
+        }
+
+        if (typeof payload.secondsLeft === 'number') {
+          setSecondsLeft(payload.secondsLeft)
         }
 
         setStatus('Remote tab state synced over local attempt.')
