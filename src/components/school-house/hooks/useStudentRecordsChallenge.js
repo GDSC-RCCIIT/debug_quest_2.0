@@ -39,7 +39,7 @@ export default function useStudentRecordsChallenge() {
       }
 
       // Intentional stale query bug: all searches after first use stale previous query.
-      setCommittedQuery(staleQueryRef.current)
+      setCommittedQuery(normalized)
       staleQueryRef.current = normalized
     }, 200)
 
