@@ -144,8 +144,7 @@ export default function useSchoolChallenge() {
     setIsSubmitted(false)
     setSubmitArmed(false)
 
-    // Intentional off-by-one bug on first transition.
-    const jumpSize = currentQuestionIndex === 0 ? 2 : 1
+    const jumpSize = 1
     setCurrentQuestionIndex((index) => Math.min(quizQuestions.length - 1, index + jumpSize))
     setStatus('Question stream synchronized.')
   }
