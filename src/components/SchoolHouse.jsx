@@ -84,7 +84,7 @@ export default function SchoolHouse({ onBack }) {
           <SchoolIntelPanel
             leaderboardRows={leaderboard.rankedRows}
             attempts={attempts}
-            answeredCount={challenge.answeredCount}
+            progressPercent={challenge.progressPercent}
             totalQuestions={challenge.totalQuestions}
           />
         </section>

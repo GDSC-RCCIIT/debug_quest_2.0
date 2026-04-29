@@ -25,14 +25,21 @@ export default function useSchoolChallenge() {
   const [activeSection, setActiveSection] = useState(
     typeof persisted?.activeSection === 'string' ? persisted.activeSection : 'quiz'
   )
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
     const raw = persisted?.currentQuestionIndex
     if (typeof raw !== 'number') return 0
     return Math.max(0, Math.min(quizQuestions.length - 1, raw))
   })
+
   const [answers, setAnswers] = useState(
     persisted?.answers && typeof persisted.answers === 'object' ? persisted.answers : {}
   )
+
+  const [submittedAnswers, setSubmittedAnswers] = useState(
+    Array.isArray(persisted?.submittedAnswers) ? persisted.submittedAnswers : []
+  )
+
   const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitArmed, setSubmitArmed] = useState(false)
@@ -40,24 +47,29 @@ export default function useSchoolChallenge() {
   const [status, setStatus] = useState('System ready. Solve instability in Quiz Arena.')
 
   const currentQuestion = quizQuestions[currentQuestionIndex]
+  const isCurrentQuestionSubmitted = submittedAnswers.includes(currentQuestionIndex)
 
   useEffect(() => {
     const snapshot = {
       answers,
+      submittedAnswers,
       currentQuestionIndex,
       activeSection,
     }
+
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
-  }, [activeSection, answers, currentQuestionIndex])
+  }, [activeSection, answers, submittedAnswers, currentQuestionIndex])
 
   useEffect(() => {
     const syncPayload = {
       answers,
+      submittedAnswers,
       currentQuestionIndex,
       at: Date.now(),
     }
+
     window.localStorage.setItem(TAB_SYNC_KEY, JSON.stringify(syncPayload))
-  }, [answers, currentQuestionIndex])
+  }, [answers, submittedAnswers, currentQuestionIndex])
 
   useEffect(() => {
     function onStorage(event) {
@@ -65,12 +77,19 @@ export default function useSchoolChallenge() {
 
       try {
         const payload = JSON.parse(event.newValue)
+
         if (payload.answers && typeof payload.answers === 'object') {
           setAnswers(payload.answers)
         }
+
+        if (Array.isArray(payload.submittedAnswers)) {
+          setSubmittedAnswers(payload.submittedAnswers)
+        }
+
         if (typeof payload.currentQuestionIndex === 'number') {
           setCurrentQuestionIndex(Math.max(0, Math.min(quizQuestions.length - 1, payload.currentQuestionIndex)))
         }
+
         setStatus('Remote tab state synced over local attempt.')
       } catch {
         // Silent by design.
@@ -86,7 +105,9 @@ export default function useSchoolChallenge() {
   }, [currentQuestionIndex])
 
   useEffect(() => {
-    if (activeSection !== 'quiz' || isSubmitted || secondsLeft === 0) return undefined
+    if (activeSection !== 'quiz' || isSubmitted || isCurrentQuestionSubmitted || secondsLeft === 0) {
+      return undefined
+    }
 
     const timerId = window.setInterval(() => {
       setSecondsLeft((previous) => {
@@ -108,10 +129,11 @@ export default function useSchoolChallenge() {
     }, 1000)
 
     return () => window.clearInterval(timerId)
-  }, [activeSection, currentQuestionIndex, isSubmitted, secondsLeft])
+  }, [activeSection, currentQuestionIndex, isSubmitted, isCurrentQuestionSubmitted, secondsLeft])
 
   useEffect(() => {
     if (!submitToast) return undefined
+
     const timerId = window.setTimeout(() => setSubmitToast(''), 1700)
     return () => window.clearTimeout(timerId)
   }, [submitToast])
@@ -125,16 +147,17 @@ export default function useSchoolChallenge() {
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers])
 
   const progressPercent = useMemo(() => {
-    return Math.round(((currentQuestionIndex + 1) / (quizQuestions.length + 1)) * 100)
-  }, [currentQuestionIndex])
+    return Math.round((submittedAnswers.length / quizQuestions.length) * 100)
+  }, [submittedAnswers])
 
   function handleSelect(optionIndex) {
-    if (isSubmitted) return
+    if (isSubmitted || isCurrentQuestionSubmitted) return
 
     setAnswers((previous) => ({
       ...previous,
       [currentQuestionIndex]: optionIndex,
     }))
+
     setStatus('Answer locked in local memory buffer.')
   }
 
@@ -143,17 +166,21 @@ export default function useSchoolChallenge() {
 
     setIsSubmitted(false)
     setSubmitArmed(false)
-
-    const jumpSize = 1
-    setCurrentQuestionIndex((index) => Math.min(quizQuestions.length - 1, index + jumpSize))
+    setCurrentQuestionIndex((index) => Math.min(quizQuestions.length - 1, index + 1))
     setStatus('Question stream synchronized.')
   }
 
   function handleSubmit() {
-    if (isSubmitted) return
+    if (isSubmitted || isCurrentQuestionSubmitted) return
 
     setSubmitArmed(true)
     setIsSubmitted(true)
+
+    setSubmittedAnswers((previous) => {
+      if (previous.includes(currentQuestionIndex)) return previous
+      return [...previous, currentQuestionIndex]
+    })
+
     setSubmitToast('Attempt saved successfully')
 
     fetch('/api/quiz/save-marks', {
@@ -183,11 +210,13 @@ export default function useSchoolChallenge() {
   }
 
   function handleRetryQuiz() {
+    setAnswers({})
+    setSubmittedAnswers([])
     setIsSubmitted(false)
     setSubmitArmed(false)
     setCurrentQuestionIndex(0)
     setSecondsLeft(QUESTION_TIME_SECONDS)
-    setStatus('Fresh attempt initialized. Trace integrity uncertain.')
+    setStatus('Fresh attempt initialized.')
   }
 
   return {
@@ -201,7 +230,7 @@ export default function useSchoolChallenge() {
     answeredCount,
     secondsLeft,
     progressPercent,
-    isSubmitted,
+    isSubmitted: isSubmitted || isCurrentQuestionSubmitted,
     submitToast,
     status,
     handleSelect,

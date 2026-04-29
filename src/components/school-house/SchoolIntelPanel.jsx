@@ -1,4 +1,4 @@
-export default function SchoolIntelPanel({ leaderboardRows, attempts, answeredCount, totalQuestions }) {
+export default function SchoolIntelPanel({ leaderboardRows, attempts, progressPercent }) {
   return (
     <aside className="school-right-panel glass-panel">
       <section className="mini-widget">
@@ -25,7 +25,7 @@ export default function SchoolIntelPanel({ leaderboardRows, attempts, answeredCo
 
       <section className="saved-badge flicker">
         <span>Saved progress</span>
-        <strong>{Math.round((answeredCount / totalQuestions) * 100)}%</strong>
+        <strong>{progressPercent}%</strong>
       </section>
     </aside>
   )
