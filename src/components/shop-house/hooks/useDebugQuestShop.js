@@ -183,8 +183,8 @@ export function useDebugQuestShop() {
         if (existingIndex > -1) {
           return previous.map((entry, idx) => {
             if (idx === existingIndex) {
-              const nextQty = Math.min(product.stock, entry.qty + 1)
-              const added = nextQty > entry.qty ? 1 : 0
+              const nextQty = entry.qty + 1
+              const added = 1
               return {
                 ...entry,
                 qty: nextQty,
@@ -210,12 +210,12 @@ export function useDebugQuestShop() {
           if (entry.rowId !== rowId) return entry
 
           if (delta > 0) {
-            const nextQty = Math.min(product.stock, entry.qty + 1)
+            const nextQty = entry.qty + 1
 
             return {
               ...entry,
               qty: nextQty,
-              billedQty: nextQty,
+              billedQty: entry.billedQty + 1,
             }
           }
 
