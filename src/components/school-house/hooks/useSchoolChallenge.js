@@ -143,7 +143,7 @@ export default function useSchoolChallenge() {
       return answers[index] === question.answer ? total + 1 : total
     }, 0)
   }, [answers])
-
+  
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers])
 
   const progressPercent = useMemo(() => {
