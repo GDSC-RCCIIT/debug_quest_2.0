@@ -12,7 +12,13 @@ export function useDebugQuestShop() {
   const [activeCategory, setActiveCategory] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
   const [page, setPage] = useState(1)
-  const [wishlist, setWishlist] = useState([])
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('shop_wishlist')) || []
+    } catch {
+      return []
+    }
+  })
   const [cart, setCart] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('shop_cart')) || []
@@ -102,6 +108,10 @@ export function useDebugQuestShop() {
   useEffect(() => {
     localStorage.setItem('shop_cart', JSON.stringify(cart))
   }, [cart])
+
+  useEffect(() => {
+    localStorage.setItem('shop_wishlist', JSON.stringify(wishlist))
+  }, [wishlist])
 
   const wishlistSet = new Set(wishlist)
 
