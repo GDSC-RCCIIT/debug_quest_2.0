@@ -140,9 +140,10 @@ export default function useSchoolChallenge() {
 
   const score = useMemo(() => {
     return quizQuestions.reduce((total, question, index) => {
-      return answers[index] === question.answer ? total + 1 : total
+      const isActuallySubmitted = submittedAnswers.includes(index)
+      return isActuallySubmitted && answers[index] === question.answer ? total + 1 : total
     }, 0)
-  }, [answers])
+  }, [answers, submittedAnswers])
 
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers])
 
@@ -176,32 +177,33 @@ export default function useSchoolChallenge() {
     setSubmitArmed(true)
     setIsSubmitted(true)
 
-    setSubmittedAnswers((previous) => {
-      if (previous.includes(currentQuestionIndex)) return previous
-      return [...previous, currentQuestionIndex]
-    })
+    const nextSubmittedAnswers = submittedAnswers.includes(currentQuestionIndex)
+      ? submittedAnswers
+      : [...submittedAnswers, currentQuestionIndex]
 
+    setSubmittedAnswers(nextSubmittedAnswers)
     setSubmitToast('Attempt saved successfully')
+
+    const currentScore = quizQuestions.reduce((total, question, index) => {
+      const isActuallySubmitted = nextSubmittedAnswers.includes(index)
+      return isActuallySubmitted && answers[index] === question.answer ? total + 1 : total
+    }, 0)
 
     fetch('/api/quiz/save-marks', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ answers, score }),
+      body: JSON.stringify({ answers, score: currentScore }),
       keepalive: true,
     }).catch(() => {
       // Silent by design; success toast is still shown.
     })
 
-    const finalScore = quizQuestions.reduce((total, question, index) => {
-      return answers[index] === question.answer ? total + 1 : total
-    }, 0)
-
-    if (finalScore >= 4) {
+    if (currentScore >= 4) {
       setStatus('Rank upgraded. Academy firewall acknowledges your precision.')
       return
     }
 
-    if (finalScore >= 2) {
+    if (currentScore >= 2) {
       setStatus('Partial stabilization achieved. Continue in Practice Room for full recovery.')
       return
     }
