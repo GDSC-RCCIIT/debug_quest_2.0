@@ -170,7 +170,8 @@ export default function useSchoolChallenge() {
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers])
 
   const progressPercent = useMemo(() => {
-    return Math.round(((submittedAnswers.length + skippedQuestions.length) / quizQuestions.length) * 100)
+    const completedQuestions = new Set([...submittedAnswers, ...skippedQuestions])
+    return Math.round((completedQuestions.size / quizQuestions.length) * 100)
   }, [submittedAnswers, skippedQuestions])
 
   function handleSelect(optionIndex) {
@@ -204,6 +205,7 @@ export default function useSchoolChallenge() {
       : [...submittedAnswers, currentQuestionIndex]
 
     setSubmittedAnswers(nextSubmittedAnswers)
+    setSkippedQuestions((prev) => prev.filter((i) => i !== currentQuestionIndex))
     setSubmitToast('Attempt saved successfully')
 
     const currentScore = quizQuestions.reduce((total, question, index) => {
