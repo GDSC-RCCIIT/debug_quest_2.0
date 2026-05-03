@@ -112,7 +112,8 @@ export default function useSchoolChallenge() {
   }, [])
 
   useEffect(() => {
-    secondsLeftRef.current = QUESTION_TIME_SECONDS
+   setSecondsLeft(QUESTION_TIME_SECONDS)
+secondsLeftRef.current = QUESTION_TIME_SECONDS
     setSecondsLeft(QUESTION_TIME_SECONDS)
   }, [currentQuestionIndex])
 
@@ -128,17 +129,21 @@ export default function useSchoolChallenge() {
         window.clearInterval(timerId)
 
         if (currentQuestionIndex < quizQuestions.length - 1) {
-          setSkippedQuestions((prev) =>
-            prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
-          )
+          if (!submittedAnswers.includes(currentQuestionIndex)) {
+            setSkippedQuestions((prev) =>
+              prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
+            )
+          }
           setCurrentQuestionIndex((index) => index + 1)
           setIsSubmitted(false)
           setSubmitArmed(false)
           setStatus('Timer glitch detected. Jumping to next prompt...')
         } else {
-          setSkippedQuestions((prev) =>
-            prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
-          )
+          if (!submittedAnswers.includes(currentQuestionIndex)) {
+            setSkippedQuestions((prev) =>
+              prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
+            )
+          }
           setSecondsLeft(0)
           setIsSubmitted(true)
           setStatus('Final packet expired. Quiz locked — time is up.')
@@ -151,7 +156,7 @@ export default function useSchoolChallenge() {
     }, 1000)
 
     return () => window.clearInterval(timerId)
-  }, [activeSection, currentQuestionIndex, isSubmitted, isCurrentQuestionSubmitted])
+ }, [activeSection, currentQuestionIndex, isSubmitted, isCurrentQuestionSubmitted, submittedAnswers])
 
   useEffect(() => {
     if (!submitToast) return undefined
