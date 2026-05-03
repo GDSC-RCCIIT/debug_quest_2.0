@@ -13,6 +13,8 @@ import {
   Flame,
   Heart,
   Gamepad2,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import './ArcadeHouse.css'
 import { initializeArcadeAssets } from './arcade-house/services/assetLoaderService'
@@ -249,8 +251,8 @@ export default function ArcadeHouse({ onBack }) {
             <button className="icon-chip" type="button" aria-label="Profile avatar">
               <span className="avatar-dot">PX</span>
             </button>
-            <button className="icon-chip" type="button" aria-label="Settings" onClick={() => setDarkMode((prev) => !prev)}>
-              <Settings size={16} />
+            <button className="icon-chip" type="button" aria-label="Toggle Theme" onClick={() => setDarkMode((prev) => !prev)}>
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
           </div>
         </nav>

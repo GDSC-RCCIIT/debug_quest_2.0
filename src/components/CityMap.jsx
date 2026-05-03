@@ -7,8 +7,8 @@ export default function CityMap({
   totalBugs: _totalBugs,
   onShopClick,
   onSchoolClick,
-  onBankClick: _onBankClick,
-  onArcadeClick: _onArcadeClick,
+  onBankClick,
+  onArcadeClick,
 }) {
   const [active, setActive] = useState(null)
   const [lockToast, setLockToast] = useState('')
@@ -51,11 +51,17 @@ export default function CityMap({
   }
 
   const handleBankClick = () => {
-    showLockedToast('bank')
+    setActive(active === 'bank' ? null : 'bank')
+    if (onBankClick) {
+      onBankClick()
+    }
   }
 
   const handleArcadeClick = () => {
-    showLockedToast('arcade')
+    setActive(active === 'arcade' ? null : 'arcade')
+    if (onArcadeClick) {
+      onArcadeClick()
+    }
   }
 
   return (
@@ -109,31 +115,18 @@ export default function CityMap({
             onClick={handleShopClick}
             aria-label="Open Shop House"
           >
-            <img src="/new_shop.png" alt="Shop building" className="shop-image" />
+            <img src="/fixed_shop.png" alt="Shop building" className="shop-image" />
           </button>
         </div>
 
         <div className="building-slot bank-slot">
           <button
             type="button"
-            className={`bank-image-button locked-zone ${active === 'bank' ? 'active' : ''}`}
+            className={`bank-image-button ${active === 'bank' ? 'active' : ''}`}
             onClick={handleBankClick}
-            aria-label="Bank House locked for Level 2"
+            aria-label="Open Bank House"
           >
             <img src="/bankkk.png" alt="Bank building" className="bank-image" />
-            <div className={`floating-lock ${lockShakeTarget === 'bank' ? 'shake' : ''}`} aria-hidden="true">
-              <span className="floating-lock-icon">🔒</span>
-            </div>
-            <div className="locked-entrance-glow" aria-hidden="true" />
-            <div className="locked-barrier" aria-hidden="true" />
-            <div className="scanner-beam" aria-hidden="true" />
-            <div className="warning-stripes" aria-hidden="true" />
-            <div className="entry-sparks" aria-hidden="true" />
-            <div className="locked-badge" aria-hidden="true">
-              <span className="locked-label">LOCKED</span>
-              <span className="locked-sub">Level 2</span>
-            </div>
-            <span className="locked-tooltip" role="tooltip">Unlocks in Level 2</span>
           </button>
         </div>
 
@@ -144,31 +137,18 @@ export default function CityMap({
             onClick={handleSchoolClick}
             aria-label="Open School House"
           >
-            <img src="/school.png" alt="School building" className="school-image" />
+            <img src="/fixed_school.png" alt="School building" className="school-image" />
           </button>
         </div>
 
         <div className="building-slot arcade-slot">
           <button
             type="button"
-            className={`arcade-image-button locked-zone ${active === 'arcade' ? 'active' : ''}`}
+            className={`arcade-image-button ${active === 'arcade' ? 'active' : ''}`}
             onClick={handleArcadeClick}
-            aria-label="Arcade House locked for Level 2"
+            aria-label="Open Arcade House"
           >
             <img src="/arcade.png" alt="Arcade building" className="arcade-image" />
-            <div className={`floating-lock ${lockShakeTarget === 'arcade' ? 'shake' : ''}`} aria-hidden="true">
-              <span className="floating-lock-icon">🔒</span>
-            </div>
-            <div className="locked-entrance-glow" aria-hidden="true" />
-            <div className="locked-barrier" aria-hidden="true" />
-            <div className="scanner-beam" aria-hidden="true" />
-            <div className="warning-stripes" aria-hidden="true" />
-            <div className="entry-sparks" aria-hidden="true" />
-            <div className="locked-badge" aria-hidden="true">
-              <span className="locked-label">LOCKED</span>
-              <span className="locked-sub">Level 2</span>
-            </div>
-            <span className="locked-tooltip" role="tooltip">Unlocks in Level 2</span>
           </button>
         </div>
 
