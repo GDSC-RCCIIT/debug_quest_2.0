@@ -190,15 +190,22 @@ secondsLeftRef.current = QUESTION_TIME_SECONDS
     setStatus('Answer locked in local memory buffer.')
   }
 
-  function handleNextQuestion() {
-    if (currentQuestionIndex >= quizQuestions.length - 1) return
-
-    setIsSubmitted(false)
-    setSubmitArmed(false)
-    setCurrentQuestionIndex((index) => Math.min(quizQuestions.length - 1, index + 1))
-    setStatus('Question stream synchronized.')
+ function handleNextQuestion() {
+  if (currentQuestionIndex >= quizQuestions.length - 1) return
+  
+  if (!submittedAnswers.includes(currentQuestionIndex)) {
+    setSkippedQuestions((prev) =>
+      prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
+    )
   }
 
+  setIsSubmitted(false)
+  setSubmitArmed(false)
+  setCurrentQuestionIndex((index) =>
+    Math.min(quizQuestions.length - 1, index + 1)
+  )
+  setStatus('Question stream synchronized.')
+}
   function handleSubmit() {
     if (isSubmitted || isCurrentQuestionSubmitted) return
 
