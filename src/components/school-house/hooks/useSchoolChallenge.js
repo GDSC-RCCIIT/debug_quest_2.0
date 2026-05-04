@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { QUESTION_TIME_SECONDS, quizQuestions } from '../constants'
 
 const STORAGE_KEY = 'debug-quest-school-progress'
@@ -40,7 +40,12 @@ export default function useSchoolChallenge() {
     Array.isArray(persisted?.submittedAnswers) ? persisted.submittedAnswers : []
   )
 
+  const [skippedQuestions, setSkippedQuestions] = useState(
+    Array.isArray(persisted?.skippedQuestions) ? persisted.skippedQuestions : []
+  )
+
   const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS)
+  const secondsLeftRef = useRef(QUESTION_TIME_SECONDS)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitArmed, setSubmitArmed] = useState(false)
   const [submitToast, setSubmitToast] = useState('')
@@ -53,23 +58,25 @@ export default function useSchoolChallenge() {
     const snapshot = {
       answers,
       submittedAnswers,
+      skippedQuestions,
       currentQuestionIndex,
       activeSection,
     }
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
-  }, [activeSection, answers, submittedAnswers, currentQuestionIndex])
+  }, [activeSection, answers, submittedAnswers, skippedQuestions, currentQuestionIndex])
 
   useEffect(() => {
     const syncPayload = {
       answers,
       submittedAnswers,
+      skippedQuestions,
       currentQuestionIndex,
       at: Date.now(),
     }
 
     window.localStorage.setItem(TAB_SYNC_KEY, JSON.stringify(syncPayload))
-  }, [answers, submittedAnswers, currentQuestionIndex])
+  }, [answers, submittedAnswers, skippedQuestions, currentQuestionIndex])
 
   useEffect(() => {
     function onStorage(event) {
@@ -84,6 +91,10 @@ export default function useSchoolChallenge() {
 
         if (Array.isArray(payload.submittedAnswers)) {
           setSubmittedAnswers(payload.submittedAnswers)
+        }
+
+        if (Array.isArray(payload.skippedQuestions)) {
+          setSkippedQuestions(payload.skippedQuestions)
         }
 
         if (typeof payload.currentQuestionIndex === 'number') {
@@ -101,35 +112,51 @@ export default function useSchoolChallenge() {
   }, [])
 
   useEffect(() => {
+   setSecondsLeft(QUESTION_TIME_SECONDS)
+secondsLeftRef.current = QUESTION_TIME_SECONDS
     setSecondsLeft(QUESTION_TIME_SECONDS)
   }, [currentQuestionIndex])
 
   useEffect(() => {
-    if (activeSection !== 'quiz' || isSubmitted || isCurrentQuestionSubmitted || secondsLeft === 0) {
+    if (activeSection !== 'quiz' || isSubmitted || isCurrentQuestionSubmitted) {
       return undefined
     }
 
     const timerId = window.setInterval(() => {
-      setSecondsLeft((previous) => {
-        if (previous <= 1) {
-          if (currentQuestionIndex < quizQuestions.length - 1) {
-            setCurrentQuestionIndex((index) => index + 1)
-            setIsSubmitted(false)
-            setSubmitArmed(false)
-            setStatus('Timer glitch detected. Jumping to next prompt...')
-            return QUESTION_TIME_SECONDS
-          }
+      secondsLeftRef.current -= 1
 
-          setStatus('Final timer depleted. Submit to lock your result.')
-          return 0
+      if (secondsLeftRef.current <= 0) {
+        window.clearInterval(timerId)
+
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+          if (!submittedAnswers.includes(currentQuestionIndex)) {
+            setSkippedQuestions((prev) =>
+              prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
+            )
+          }
+          setCurrentQuestionIndex((index) => index + 1)
+          setIsSubmitted(false)
+          setSubmitArmed(false)
+          setStatus('Timer glitch detected. Jumping to next prompt...')
+        } else {
+          if (!submittedAnswers.includes(currentQuestionIndex)) {
+            setSkippedQuestions((prev) =>
+              prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
+            )
+          }
+          setSecondsLeft(0)
+          setIsSubmitted(true)
+          setStatus('Final packet expired. Quiz locked — time is up.')
         }
 
-        return previous - 1
-      })
+        return
+      }
+
+      setSecondsLeft(secondsLeftRef.current)
     }, 1000)
 
     return () => window.clearInterval(timerId)
-  }, [activeSection, currentQuestionIndex, isSubmitted, isCurrentQuestionSubmitted, secondsLeft])
+ }, [activeSection, currentQuestionIndex, isSubmitted, isCurrentQuestionSubmitted, submittedAnswers])
 
   useEffect(() => {
     if (!submitToast) return undefined
@@ -148,8 +175,9 @@ export default function useSchoolChallenge() {
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers])
 
   const progressPercent = useMemo(() => {
-    return Math.round((submittedAnswers.length / quizQuestions.length) * 100)
-  }, [submittedAnswers])
+    const completedQuestions = new Set([...submittedAnswers, ...skippedQuestions])
+    return Math.round((completedQuestions.size / quizQuestions.length) * 100)
+  }, [submittedAnswers, skippedQuestions])
 
   function handleSelect(optionIndex) {
     if (isSubmitted || isCurrentQuestionSubmitted) return
@@ -162,15 +190,22 @@ export default function useSchoolChallenge() {
     setStatus('Answer locked in local memory buffer.')
   }
 
-  function handleNextQuestion() {
-    if (currentQuestionIndex >= quizQuestions.length - 1) return
-
-    setIsSubmitted(false)
-    setSubmitArmed(false)
-    setCurrentQuestionIndex((index) => Math.min(quizQuestions.length - 1, index + 1))
-    setStatus('Question stream synchronized.')
+ function handleNextQuestion() {
+  if (currentQuestionIndex >= quizQuestions.length - 1) return
+  
+  if (!submittedAnswers.includes(currentQuestionIndex)) {
+    setSkippedQuestions((prev) =>
+      prev.includes(currentQuestionIndex) ? prev : [...prev, currentQuestionIndex]
+    )
   }
 
+  setIsSubmitted(false)
+  setSubmitArmed(false)
+  setCurrentQuestionIndex((index) =>
+    Math.min(quizQuestions.length - 1, index + 1)
+  )
+  setStatus('Question stream synchronized.')
+}
   function handleSubmit() {
     if (isSubmitted || isCurrentQuestionSubmitted) return
 
@@ -182,6 +217,7 @@ export default function useSchoolChallenge() {
       : [...submittedAnswers, currentQuestionIndex]
 
     setSubmittedAnswers(nextSubmittedAnswers)
+    setSkippedQuestions((prev) => prev.filter((i) => i !== currentQuestionIndex))
     setSubmitToast('Attempt saved successfully')
 
     const currentScore = quizQuestions.reduce((total, question, index) => {
@@ -214,6 +250,7 @@ export default function useSchoolChallenge() {
   function handleRetryQuiz() {
     setAnswers({})
     setSubmittedAnswers([])
+    setSkippedQuestions([])
     setIsSubmitted(false)
     setSubmitArmed(false)
     setCurrentQuestionIndex(0)
