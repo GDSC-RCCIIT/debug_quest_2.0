@@ -74,6 +74,7 @@ export function useBankData() {
     }, 2400);
 
     balanceRef.current = Math.min(balanceRef.current, result.settledBalance);
+    setBalance(result.settledBalance);
 
     publishBalanceBroadcast(result.settledBalance, result.ledgerVersion);
 
