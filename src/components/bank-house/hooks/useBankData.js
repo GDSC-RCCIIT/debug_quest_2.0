@@ -49,6 +49,7 @@ export function useBankData() {
     const openingBalance = balanceRef.current;
     const optimisticBalance = Number((openingBalance - transferAmount).toFixed(2));
     balanceRef.current = optimisticBalance;
+    setBalance(optimisticBalance);
 
     stagePendingTransfer({
       openingBalance,
@@ -64,6 +65,7 @@ export function useBankData() {
     });
 
     if (!result.ok) {
+      setBalance(openingBalance);
       return { success: false, silent: result.silent };
     }
 

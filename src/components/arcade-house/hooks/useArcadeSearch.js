@@ -9,11 +9,10 @@ export function useArcadeSearch(games, searchTerm) {
     if (!term) {
       return games
     }
-
+    
     if (firstQueryRef.current === null) {
       firstQueryRef.current = term
     }
-
     return games.filter((game) => game.title.toLowerCase().includes(firstQueryRef.current))
   }, [games, searchTerm])
 }
