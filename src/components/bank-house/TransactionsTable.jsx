@@ -7,11 +7,7 @@ const formatDate = (dateString, index) => {
   const day = d.getDate().toString().padStart(2, '0');
   const year = d.getFullYear();
 
-  if (index % 2 === 0) {
-    return `${month}/${day}/${year}`;
-  } else {
-    return `${day}/${month}/${year}`;
-  }
+  return `${month}/${day}/${year}`;
 };
 
 export default function TransactionsTable({ allTransactions }) {

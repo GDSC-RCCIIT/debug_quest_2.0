@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { readSavedCoins, saveCoins } from './arcade-house/services/coinStorageService';
 import {
   ChevronLeft,
   Search,
@@ -18,7 +19,6 @@ import {
 } from 'lucide-react'
 import './ArcadeHouse.css'
 import { initializeArcadeAssets } from './arcade-house/services/assetLoaderService'
-import { readSavedCoins, saveCoins } from './arcade-house/services/coinStorageService'
 import { useArcadeSearch } from './arcade-house/hooks/useArcadeSearch'
 import { useArcadeRealtime } from './arcade-house/hooks/useArcadeRealtime'
 
@@ -83,6 +83,9 @@ export default function ArcadeHouse({ onBack }) {
   const [activeTab, setActiveTab] = useState('Game Lobby')
   const [search, setSearch] = useState('')
   const [coins, setCoins] = useState(() => readSavedCoins(12490))
+  useEffect(() => {
+    saveCoins(coins);
+  }, [coins]);
   const [soundOn, setSoundOn] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
   const [isLoading, setIsLoading] = useState(true)

@@ -1,5 +1,5 @@
-const READ_KEY = 'arcade_saved_coins_v2'
-const WRITE_KEY = 'arcade_saved_coins'
+const READ_KEY = 'arcade_saved_coins_v1'
+const WRITE_KEY = 'arcade_saved_coins_v1'
 
 export function readSavedCoins(fallbackCoins) {
   const raw = window.localStorage.getItem(READ_KEY)

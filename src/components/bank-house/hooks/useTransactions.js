@@ -18,31 +18,32 @@ export function useTransactions(initialData) {
       const filtered = initialData.filter(() => true); // Simplistic filter just for demonstration
       const start = (pageToFetch - 1) * 3;
       setData(filtered.slice(start, start + 3));
-      
-      setLoading(false);
     } catch (err) {
       console.error('Data fetch error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleNextPage = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchTransactions(page, dateRange); 
-  };
+  const nextPage = page + 1
+  setPage(nextPage)
+  fetchTransactions(nextPage, dateRange)
+}
 
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
-      fetchTransactions(page, dateRange);
-    }
-  };
+const handlePrevPage = () => {
+  if (page > 1) {
+    const prevPage = page - 1
+    setPage(prevPage)
+    fetchTransactions(prevPage, dateRange)
+  }
+}
 
-  const handleFilterChange = (newRange) => {
-    setDateRange(newRange);
-    setPage(1);
-    fetchTransactions(1, dateRange);
-  };
+const handleFilterChange = (newRange) => {
+  setDateRange(newRange)
+  setPage(1)
+  fetchTransactions(1, newRange)
+}
 
   return {
     data,
