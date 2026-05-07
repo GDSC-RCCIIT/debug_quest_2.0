@@ -33,9 +33,6 @@ export function useArcadeRealtime(score) {
     }
 
     submitScore('You', score)
-    if (reconnectCount > 0) {
-      submitScore('You', score)
-    }
   }, [isConnected, reconnectCount, score])
 
   const connectedPlayers = useMemo(() => players, [players])
