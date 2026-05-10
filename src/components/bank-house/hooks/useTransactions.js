@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useTransactions(initialData) {
   const [data, setData] = useState(initialData.slice(0, 3));
@@ -44,6 +44,10 @@ const handleFilterChange = (newRange) => {
   setPage(1)
   fetchTransactions(1, newRange)
 }
+
+  useEffect(() => {
+    fetchTransactions(page, dateRange);
+  }, [initialData]);
 
   return {
     data,

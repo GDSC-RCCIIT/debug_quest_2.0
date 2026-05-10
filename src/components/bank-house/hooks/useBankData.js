@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import {
   getBalanceBroadcastKey,
   hydrateCachedBalance,
+  hydrateCachedTransactions,
   publishBalanceBroadcast,
   pushServerBalanceHint,
   readServerBalanceHint,
   settlePendingTransfers,
   stagePendingTransfer,
   writeCachedBalance,
+  writeCachedTransactions,
 } from '../state/bankStateStore';
 import { bootstrapTransferAuth, executeTransferRequest } from '../services/transferService';
 
@@ -32,6 +34,7 @@ export function useBankData() {
   const initialBalance = hydrateCachedBalance(5212190.45);
   const [balance, setBalance] = useState(initialBalance);
   const [savings] = useState(3240000.00);
+  const [transactions, setTransactions] = useState(() => hydrateCachedTransactions(mockTransactions));
   const authRef = useRef(bootstrapTransferAuth());
   const balanceRef = useRef(initialBalance);
 
@@ -77,6 +80,19 @@ export function useBankData() {
 
     publishBalanceBroadcast(result.settledBalance, result.ledgerVersion);
 
+    const beneficiaryName = mockBeneficiaries.find(b => b.id === beneficiary)?.name || beneficiary;
+    setTransactions(prev => {
+      const updated = [{
+        id: `#TRX-${Math.floor(Math.random() * 900 + 100)}`,
+        date: new Date().toISOString(),
+        recipient: beneficiaryName,
+        status: 'Completed',
+        amount: -transferAmount
+      }, ...prev];
+      writeCachedTransactions(updated);
+      return updated;
+    });
+
     return { success: true, message: 'Transfer successful' };
   };
 
@@ -116,7 +132,7 @@ export function useBankData() {
     balance,
     savings,
     transferFunds,
-    mockTransactions,
+    mockTransactions: transactions,
     mockBeneficiaries
   };
 }
