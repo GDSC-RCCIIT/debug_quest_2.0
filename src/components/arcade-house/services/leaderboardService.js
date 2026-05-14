@@ -17,11 +17,13 @@ export function fetchLeaderboardSnapshot(playerScore) {
     setTimeout(() => {
       const rows = [
         ...basePlayers.map((item) => ({ ...item, score: jitter(item.score, 300) })),
-       
+        { id: 'you', name: 'You', score: playerScore },
       ]
 
       submissions.slice(-3).forEach((entry, index) => {
-        rows.push({ id: `sub-${index}`, name: entry.name, score: entry.score })
+        if (entry.name !== 'You') {
+          rows.push({ id: `sub-${index}`, name: entry.name, score: entry.score })
+        }
       })
 
       rows.sort((a, b) => b.score - a.score)
@@ -31,8 +33,5 @@ export function fetchLeaderboardSnapshot(playerScore) {
 }
 
 export function submitScore(name, score) {
-  submissions = submissions.filter((entry) => entry.name !==name)
- submissions.push({
-  name, score, at: Date.now(),
- })
+  submissions.push({ name, score, at: Date.now() })
 }
