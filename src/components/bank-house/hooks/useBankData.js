@@ -41,7 +41,11 @@ export function useBankData() {
   const transferFunds = async (amount, beneficiary) => {
     const transferAmount = Number(amount);
     if (!Number.isFinite(transferAmount) || transferAmount <= 0 || !beneficiary) {
-      return { success: false };
+      return { success: false, message: 'Invalid transfer amount' };
+    }
+
+    if (transferAmount > balanceRef.current) {
+      return { success: false, message: 'Insufficient funds' };
     }
 
     const hintedServerBalance = readServerBalanceHint();
