@@ -97,13 +97,18 @@ export default function ArcadeHouse({ onBack }) {
   const [isPaused, setIsPaused] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+  useEffect(() => {
+  const root = document.documentElement;
 
-  const [activeGame, setActiveGame] = useState(null)
+  root.classList.remove('dark-mode', 'light-mode');
 
-  const [darkMode, setDarkMode] = useState(() =>
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  )
-
+  if (darkMode) {
+    root.classList.add('dark-mode');
+  } else {
+    root.classList.add('light-mode');
+  }
+}, [darkMode]);
   const [playerX, setPlayerX] = useState(8)
   const [isJumping, setIsJumping] = useState(false)
   const [jumpTick, setJumpTick] = useState(0)
@@ -113,13 +118,12 @@ export default function ArcadeHouse({ onBack }) {
   const [health, setHealth] = useState(82)
   const [xp, setXp] = useState(68)
   const [streak, setStreak] = useState(5)
+  const rapidJumpRef = useRef([])
+  const jumpLock = useRef(false); // Our physical lock
+  const arcadeState = useRef({ isJumping, controlsLocked, isPaused });
+  arcadeState.current = { isJumping, controlsLocked, isPaused };
 
-  const jumpLock = useRef(false)
-
-  const arcadeState = useRef({
-    isJumping,
-    controlsLocked,
-  })
+  
 
   arcadeState.current = {
     isJumping,
@@ -184,8 +188,8 @@ export default function ArcadeHouse({ onBack }) {
   }, [isPaused, gameStarted])
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (arcadeState.current.controlsLocked) return
+  const handleKeyDown = (e) => {
+    if (arcadeState.current.controlsLocked || arcadeState.current.isPaused) return;
 
       if (e.key === 'a' || e.key === 'ArrowLeft') {
         setPlayerX((p) => Math.max(0, p - 4))
@@ -232,21 +236,19 @@ export default function ArcadeHouse({ onBack }) {
     ? Math.max(0, Math.sin((jumpTick / 6) * Math.PI) * 56)
     : 0
 
-  const playCard = (card) => {
+  const isLaunching = useRef(false)
+
+  const playCard = () => {
+    if (isLaunching.current) return
+    isLaunching.current = true
+    
     setIsJumping(false)
     setJumpTick(0)
-
-    setCoins((prev) => prev + card.reward)
-    setScore((prev) => prev + card.reward)
-    setXp((prev) => clamp(prev + 4, 0, 100))
-
-    if (Math.random() > 0.7) {
-      setStreak((prev) => prev + 1)
-    }
-
     setGameStarted(true)
-    setActiveGame(card)
-    setActiveTab('Mini Games')
+    
+    setTimeout(() => {
+      isLaunching.current = false
+    }, 1000)
   }
 
   const onStartGame = () => {
@@ -261,7 +263,9 @@ export default function ArcadeHouse({ onBack }) {
   }
 
   const onJump = () => {
-    if (jumpLock.current || arcadeState.current.controlsLocked) return
+  // 1. Check the physical lock immediately
+  // We use the arcadeState ref to see if controls are locked globally
+  if (jumpLock.current || arcadeState.current.controlsLocked || arcadeState.current.isPaused) return;
 
     jumpLock.current = true
 
@@ -502,7 +506,7 @@ export default function ArcadeHouse({ onBack }) {
                       key={card.id}
                       type="button"
                       className="arcade-machine"
-                      onClick={() => playCard(card)}
+                      onClick={() => playCard()}
                     >
                       <div className="machine-marquee">{card.title}</div>
 
@@ -541,7 +545,7 @@ export default function ArcadeHouse({ onBack }) {
                           className="arcade-play-btn"
                           onClick={(event) => {
                             event.stopPropagation()
-                            playCard(card)
+                            playCard()
                           }}
                         >
                           Play
@@ -594,29 +598,11 @@ export default function ArcadeHouse({ onBack }) {
                 </div>
 
                 <div className="controls-row">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      !controlsLocked &&
-                      setPlayerX((prev) => clamp(prev - 7, 0, 88))
-                    }
-                  >
-                    Move ◀
-                  </button>
-
+                  <button type="button" onClick={() => !controlsLocked && !isPaused && setPlayerX((prev) => clamp(prev - 7, 0, 88))}>Move ◀</button>
                   <button type="button" onClick={onJump}>
                     Jump ▲
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      !controlsLocked &&
-                      setPlayerX((prev) => clamp(prev + 7, 0, 88))
-                    }
-                  >
-                    Move ▶
-                  </button>
+                  <button type="button" onClick={() => !controlsLocked && !isPaused && setPlayerX((prev) => clamp(prev + 7, 0, 88))}>Move ▶</button>
                 </div>
 
                 <div className="panel-actions">
