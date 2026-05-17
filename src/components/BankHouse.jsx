@@ -14,28 +14,31 @@ import BeneficiariesPanel from './bank-house/BeneficiariesPanel';
 
 export default function BankHouse({ onBack }) {
   const [activeTab, setActiveTab] = useState('dashboard')
-  const [glitchText, setGlitchText] = useState('8,452,190.45')
+  
   
   const { balance, savings, transferFunds, mockTransactions, mockBeneficiaries } = useBankData();
   const [selectedBen, setSelectedBen] = useState('');
-
-  // Fake glitch effect for total balance
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.8) {
-        setGlitchText((prev) => {
-          const chars = prev.split('')
-          const randIdx = Math.floor(Math.random() * chars.length)
-          if(chars[randIdx] !== '.' && chars[randIdx] !== ',') {
-            chars[randIdx] = Math.floor(Math.random() * 9).toString()
-          }
-          return chars.join('')
-        })
-        setTimeout(() => setGlitchText((balance).toLocaleString('en-US', {minimumFractionDigits: 2})), 150)
-      }
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [balance])
+  const totalFunds = balance + savings;
+const [glitchText, setGlitchText] = useState(() => (balance + savings).toLocaleString('en-US', {minimumFractionDigits: 2}));
+ 
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (Math.random() > 0.8) {
+      setGlitchText((prev) => {
+        const chars = prev.split('')
+        const randIdx = Math.floor(Math.random() * chars.length)
+        if(chars[randIdx] !== '.' && chars[randIdx] !== ',') {
+          chars[randIdx] = Math.floor(Math.random() * 9).toString()
+        }
+        return chars.join('')
+      })
+      
+  
+      setTimeout(() => setGlitchText((totalFunds).toLocaleString('en-US', {minimumFractionDigits: 2})), 150)
+    }
+  }, 2000)
+  return () => clearInterval(interval)
+}, [totalFunds]) 
 
   return (
     <main className="bank-house-shell">
