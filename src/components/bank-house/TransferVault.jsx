@@ -31,11 +31,10 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
       if (result?.success) {
         setAmount('');
         setToast('Transfer Successful!');
-        setTimeout(() => setToast(null), 3500);
       } else {
         setToast(result?.message || 'Transfer Failed');
-        setTimeout(() => setToast(null), 3500);
       }
+      setTimeout(() => setToast(null), 3500);
     } catch {
       setToast('Transfer Error');
       setTimeout(() => setToast(null), 3500);

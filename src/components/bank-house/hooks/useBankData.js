@@ -54,8 +54,20 @@ export function useBankData() {
     }
 
     const openingBalance = balanceRef.current;
-    const optimisticBalance = Number((openingBalance - transferAmount).toFixed(2));
-    setBalance(balanceRef.current = optimisticBalance);
+
+// Prevent insufficient funds
+if (transferAmount > openingBalance) {
+  return {
+    success: false,
+    message: 'Insufficient Funds.'
+  };
+}
+
+const optimisticBalance = Number(
+  (openingBalance - transferAmount).toFixed(2)
+);
+
+setBalance(balanceRef.current = optimisticBalance);
 
     stagePendingTransfer({
       openingBalance,
