@@ -18,17 +18,29 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
 
     setToast('Transfer Initiated - Processing...');
 
-    try {
-      await onTransfer(parseFloat(amount), selectedBeneficiary);
-      setAmount('');
-      setToast('Transfer Successful!');
-      setTimeout(() => setToast(null), 3500);
-    } catch {
-      setToast(null);
-    } finally {
-      transferLockRef.current = false;
-      setIsSubmitting(false);
-    }
+   try {
+  const result = await onTransfer(
+    parseFloat(amount),
+    selectedBeneficiary
+  );
+
+  if (!result?.success) {
+    setToast(result?.message || 'Insufficient Funds.');
+  } else {
+    setAmount('');
+    setToast('Transfer Successful!');
+  }
+
+  setTimeout(() => setToast(null), 3500);
+
+} catch {
+  setToast('Transfer Failed');
+  setTimeout(() => setToast(null), 3500);
+}
+finally {
+  transferLockRef.current = false;
+  setIsSubmitting(false);
+}
   };
 
   return (
@@ -36,9 +48,11 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
       {toast && (
         <div 
           className={`absolute top-2 right-2 px-4 py-2 rounded shadow border ${
-            toast.includes('Processing') 
-              ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
-              : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
+            toast.includes('Processing')
+  ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50'
+  : toast.includes('Successful')
+  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
+  : 'bg-red-500/20 text-red-400 border-red-500/50'
           }`}
           style={{ zIndex: 50, transition: 'all 0.3s' }}
         >
