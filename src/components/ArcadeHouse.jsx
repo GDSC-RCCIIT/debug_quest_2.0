@@ -97,6 +97,7 @@ export default function ArcadeHouse({ onBack }) {
   const [isPaused, setIsPaused] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
+  const [activeGame, setActiveGame] = useState(null);
   const [darkMode, setDarkMode] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   useEffect(() => {
   const root = document.documentElement;
@@ -251,11 +252,11 @@ export default function ArcadeHouse({ onBack }) {
     }, 1000)
   }
 
-  const onStartGame = () => {
-     setActiveGame(gameCards[0])
-
-  setGameStarted(true)
-
+ const onStartGame = (game) => {
+  const selected = game || gameCards?.[0];
+  setActiveGame(selected);
+  setGameStarted(true);
+   
 
     setScore((prev) => prev + 40)
 
@@ -437,23 +438,23 @@ export default function ArcadeHouse({ onBack }) {
                 </p>
 
                 <div className="hero-actions">
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={onStartGame}
-                  >
-                    <Play size={16} />
-                    {gameStarted ? 'Running' : 'Start Game'}
-                  </button>
+  <button
+    type="button"
+    className="btn-primary"
+    onClick={() => onStartGame(gameCards[0])}
+  >
+    <Play size={16} />
+    {gameStarted ? 'Running' : 'Start Game'}
+  </button>
 
-                  <button
-                    type="button"
-                    className="btn-ghost"
-                    onClick={() => setGameStarted(true)}
-                  >
-                    Continue
-                  </button>
-                </div>
+  <button
+    type="button"
+    className="btn-ghost"
+    onClick={() => onStartGame(gameCards[0])}
+  >
+    Play Now
+  </button>
+</div>
               </div>
 
               <div className="hero-search">
@@ -502,57 +503,57 @@ export default function ArcadeHouse({ onBack }) {
                   </div>
 
                   {filteredCards.map((card, index) => (
-                    <button
-                      key={card.id}
-                      type="button"
-                      className="arcade-machine"
-                      onClick={() => playCard()}
-                    >
-                      <div className="machine-marquee">{card.title}</div>
+  <button
+    key={card.id}
+    type="button"
+    className="arcade-machine"
+    onClick={() => onStartGame(card)} // Passing the specific cabinet card here
+  >
+    <div className="machine-marquee">{card.title}</div>
 
-                      <div
-                        className={`machine-screen ${
-                          index % 3 === 0 ? 'glitch-flicker-soft' : ''
-                        }`}
-                      >
-                        <div className="screen-thumb">
-                          {getMachineIcon(card.id)}
-                        </div>
+    <div
+      className={`machine-screen ${
+        index % 3 === 0 ? 'glitch-flicker-soft' : ''
+      }`}
+    >
+      <div className="screen-thumb">
+        {getMachineIcon(card.id)}
+      </div>
 
-                        <div className="screen-overlay">{card.title}</div>
-                      </div>
+      <div className="screen-overlay">{card.title}</div>
+    </div>
 
-                      <div className="machine-meta-row">
-                        <span className="difficulty-badge">
-                          {card.difficulty}
-                        </span>
+    <div className="machine-meta-row">
+      <span className="difficulty-badge">
+        {card.difficulty}
+      </span>
 
-                        <span className="reward-coins">
-                          +{card.reward} coins
-                        </span>
-                      </div>
+      <span className="reward-coins">
+        +{card.reward} coins
+      </span>
+    </div>
 
-                      <div className="machine-bottom">
-                        <span
-                          className={`machine-sticker ${
-                            index % 2 === 0 ? 'new' : 'high'
-                          }`}
-                        >
-                          {index % 2 === 0 ? 'NEW' : 'HIGH SCORE'}
-                        </span>
+    <div className="machine-bottom">
+      <span
+        className={`machine-sticker ${
+          index % 2 === 0 ? 'new' : 'high'
+        }`}
+      >
+        {index % 2 === 0 ? 'NEW' : 'HIGH SCORE'}
+      </span>
 
-                        <span
-                          className="arcade-play-btn"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            playCard()
-                          }}
-                        >
-                          Play
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+      <span
+        className="arcade-play-btn"
+        onClick={(event) => {
+          event.stopPropagation() // Prevents clicking twice
+          onStartGame(card) // Passing the specific cabinet card here too
+        }}
+      >
+        Play
+      </span>
+    </div>
+  </button>
+))}
                 </div>
               </article>
 
