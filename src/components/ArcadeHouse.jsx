@@ -113,13 +113,12 @@ export default function ArcadeHouse({ onBack }) {
   const [health, setHealth] = useState(82)
   const [xp, setXp] = useState(68)
   const [streak, setStreak] = useState(5)
+  const rapidJumpRef = useRef([])
+  const jumpLock = useRef(false); // Our physical lock
+  const arcadeState = useRef({ isJumping, controlsLocked, isPaused });
+  arcadeState.current = { isJumping, controlsLocked, isPaused };
 
-  const jumpLock = useRef(false)
-
-  const arcadeState = useRef({
-    isJumping,
-    controlsLocked,
-  })
+  
 
   arcadeState.current = {
     isJumping,
@@ -184,8 +183,8 @@ export default function ArcadeHouse({ onBack }) {
   }, [isPaused, gameStarted])
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (arcadeState.current.controlsLocked) return
+  const handleKeyDown = (e) => {
+    if (arcadeState.current.controlsLocked || arcadeState.current.isPaused) return;
 
       if (e.key === 'a' || e.key === 'ArrowLeft') {
         setPlayerX((p) => Math.max(0, p - 4))
@@ -258,7 +257,9 @@ export default function ArcadeHouse({ onBack }) {
   }
 
   const onJump = () => {
-    if (jumpLock.current || arcadeState.current.controlsLocked) return
+  // 1. Check the physical lock immediately
+  // We use the arcadeState ref to see if controls are locked globally
+  if (jumpLock.current || arcadeState.current.controlsLocked || arcadeState.current.isPaused) return;
 
     jumpLock.current = true
 
@@ -591,29 +592,11 @@ export default function ArcadeHouse({ onBack }) {
                 </div>
 
                 <div className="controls-row">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      !controlsLocked &&
-                      setPlayerX((prev) => clamp(prev - 7, 0, 88))
-                    }
-                  >
-                    Move ◀
-                  </button>
-
+                  <button type="button" onClick={() => !controlsLocked && !isPaused && setPlayerX((prev) => clamp(prev - 7, 0, 88))}>Move ◀</button>
                   <button type="button" onClick={onJump}>
                     Jump ▲
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      !controlsLocked &&
-                      setPlayerX((prev) => clamp(prev + 7, 0, 88))
-                    }
-                  >
-                    Move ▶
-                  </button>
+                  <button type="button" onClick={() => !controlsLocked && !isPaused && setPlayerX((prev) => clamp(prev + 7, 0, 88))}>Move ▶</button>
                 </div>
 
                 <div className="panel-actions">
