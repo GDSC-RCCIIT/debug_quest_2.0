@@ -250,7 +250,10 @@ export default function ArcadeHouse({ onBack }) {
   }
 
   const onStartGame = () => {
-    setGameStarted(true)
+     setActiveGame(gameCards[0])
+
+  setGameStarted(true)
+
 
     setScore((prev) => prev + 40)
 
@@ -338,7 +341,7 @@ export default function ArcadeHouse({ onBack }) {
           </aside>
 
           <section className="arcade-main">
-            {gameStarted && activeGame && (
+           {gameStarted && activeGame?.title && (
               <section
                 className="glass-card"
                 style={{
@@ -350,7 +353,7 @@ export default function ArcadeHouse({ onBack }) {
                 <h2>GAME STARTING...</h2>
 
                 <p>
-                  Now playing: <strong>{activeGame.title}</strong>
+                Now playing: <strong>{activeGame?.title || 'Loading...'}</strong>
                 </p>
 
                 <div
