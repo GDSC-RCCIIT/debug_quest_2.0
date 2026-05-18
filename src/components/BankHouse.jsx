@@ -119,90 +119,206 @@ export default function BankHouse({ onBack }) {
             </div>
           </aside>
 
-          <section className="bank-main-content">
-            <div className="bank-summary-row">
-              <div className="bank-card summary-card bank-glass">
-                <h3>Total Balance</h3>
-                <div className="balance-value glitch-target">₮ {glitchText}</div>
-                <span className="trend positive">+12.5% this month</span>
-              </div>
-              <div className="bank-card summary-card bank-glass">
-                <h3>Savings Vault</h3>
-                <div className="balance-value">₮ {savings.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                <span className="trend positive">Locked</span>
-              </div>
-              <div className="bank-card summary-card bank-glass">
-                <h3>Current Account</h3>
-                <div className="balance-value">₮ {balance.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                <span className="trend negative hover-glitch">Pending holds</span>
-              </div>
-              <div className="bank-card summary-card bank-glass">
-                <h3>Monthly Spend</h3>
-                <div className="balance-value">₮ {monthlySpend.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                <span className="trend negative">+8.2% vs last month</span>
-              </div>
-            </div>
+           <section className="bank-main-content">
+            <h1 style={{ color: 'white' }}>
+              Active Tab: {activeTab}
+            </h1>
 
-            <div className="bank-content-grid">
-              <div className="bank-center-panel">
-                <TransactionsTable allTransactions={mockTransactions} />
-                <TransferVault 
-                    balance={balance} 
-                    beneficiaries={mockBeneficiaries} 
-                    onTransfer={transferFunds}
-                    selectedBeneficiary={selectedBen}
-                    setSelectedBeneficiary={setSelectedBen}
-                />
-              </div>
+            {activeTab === 'dashboard' && (
+              <>
+                <div className="bank-summary-row">
+                  <div className="bank-card summary-card bank-glass">
+                    <h3>Total Balance</h3>
 
-              <div className="bank-right-panel">
-                <div className="bank-card bank-glass">
-                  <h2>Security Alerts</h2>
-                  <div className="alert-list">
-                    <div className="alert-item critical">
-                      <AlertTriangle size={16} />
-                      <div className="alert-content">
-                        <strong>Unauthorized Access Attempt</strong>
-                        <span>Terminal 4A - 2 mins ago</span>
-                      </div>
+                    <div className="balance-value glitch-target">
+                      ₮ {glitchText}
                     </div>
-                    <div className="alert-item warning">
-                      <ShieldAlert size={16} />
-                      <div className="alert-content">
-                        <strong>Large Transfer Pending</strong>
-                        <span>₮ 89,000.00 awaiting clearance</span>
-                      </div>
+
+                    <span className="trend positive">
+                      +12.5% this month
+                    </span>
+                  </div>
+
+                  <div className="bank-card summary-card bank-glass">
+                    <h3>Savings Vault</h3>
+
+                    <div className="balance-value">
+                      ₮{' '}
+                      {savings.toLocaleString('en-US', {
+                        minimumFractionDigits: 2
+                      })}
                     </div>
+
+                    <span className="trend positive">Locked</span>
+                  </div>
+
+                  <div className="bank-card summary-card bank-glass">
+                    <h3>Current Account</h3>
+
+                    <div className="balance-value">
+                      ₮{' '}
+                      {balance.toLocaleString('en-US', {
+                        minimumFractionDigits: 2
+                      })}
+                    </div>
+
+                    <span className="trend negative hover-glitch">
+                      Pending holds
+                    </span>
+                  </div>
+
+                  <div className="bank-card summary-card bank-glass">
+                    <h3>Monthly Spend</h3>
+
+                    <div className="balance-value">
+                      ₮{' '}
+                      {monthlySpend.toLocaleString('en-US', {
+                        minimumFractionDigits: 2
+                      })}
+                    </div>
+
+                    <span className="trend negative">
+                      +8.2% vs last month
+                    </span>
                   </div>
                 </div>
 
-                <div className="bank-card bank-glass chart-card">
-  <h2>Spending Overview</h2>
-  <div className="chart-placeholder">
-    <div className="bar-chart">
-      {dailySpending && dailySpending.map((day, idx) => (
-        <div 
-          key={idx}
-          className={`bar ${day.isToday ? 'active-bar' : ''}`}
-          style={{ height: day.height }}
-          title={`₮ ${day.amount.toLocaleString()}`}
-        />
-      ))}
-    </div>
-    <div className="chart-labels">
-      {dailySpending && dailySpending.map((day, idx) => (
-        <span key={idx}>{day.label}</span>
-      ))}
-    </div>
-  </div>
-</div>
+                <div className="bank-content-grid">
+                  <div className="bank-center-panel">
+                    <TransactionsTable
+                      allTransactions={mockTransactions}
+                    />
 
-                <BeneficiariesPanel 
-                    beneficiaries={mockBeneficiaries} 
-                    onSelectBeneficiary={(ben) => setSelectedBen(ben?.id || '')} 
-                />
+                    <TransferVault
+                      balance={balance}
+                      beneficiaries={mockBeneficiaries}
+                      onTransfer={transferFunds}
+                      selectedBeneficiary={selectedBen}
+                      setSelectedBeneficiary={setSelectedBen}
+                    />
+                  </div>
+
+                  <div className="bank-right-panel">
+                    <div className="bank-card bank-glass">
+                      <h2>Security Alerts</h2>
+
+                      <div className="alert-list">
+                        <div className="alert-item critical">
+                          <AlertTriangle size={16} />
+
+                          <div className="alert-content">
+                            <strong>
+                              Unauthorized Access Attempt
+                            </strong>
+
+                            <span>
+                              Terminal 4A - 2 mins ago
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="alert-item warning">
+                          <ShieldAlert size={16} />
+
+                          <div className="alert-content">
+                            <strong>
+                              Large Transfer Pending
+                            </strong>
+
+                            <span>
+                              ₮ 89,000.00 awaiting clearance
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bank-card bank-glass chart-card">
+                      <h2>Spending Overview</h2>
+
+                      <div className="chart-placeholder">
+                        <div className="bar-chart">
+                          {dailySpending.map((day, idx) => (
+                            <div
+                              key={idx}
+                              className={`bar ${
+                                day.isToday
+                                  ? 'active-bar'
+                                  : ''
+                              }`}
+                              style={{ height: day.height }}
+                              title={`₮ ${day.amount.toLocaleString()}`}
+                            />
+                          ))}
+                        </div>
+
+                        <div className="chart-labels">
+                          {dailySpending.map((day, idx) => (
+                            <span key={idx}>
+                              {day.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <BeneficiariesPanel
+                      beneficiaries={mockBeneficiaries}
+                      onSelectBeneficiary={ben =>
+                        setSelectedBen(ben?.id || '')
+                      }
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeTab === 'accounts' && (
+              <div className="bank-card bank-glass">
+                <h2>Accounts</h2>
+                <p>Accounts section coming soon...</p>
               </div>
-            </div>
+            )}
+
+            {activeTab === 'transfer' && (
+              <TransferVault
+                balance={balance}
+                beneficiaries={mockBeneficiaries}
+                onTransfer={transferFunds}
+                selectedBeneficiary={selectedBen}
+                setSelectedBeneficiary={setSelectedBen}
+              />
+            )}
+
+            {activeTab === 'beneficiaries' && (
+              <BeneficiariesPanel
+                beneficiaries={mockBeneficiaries}
+                onSelectBeneficiary={ben =>
+                  setSelectedBen(ben?.id || '')
+                }
+              />
+            )}
+
+            {activeTab === 'statements' && (
+              <div className="bank-card bank-glass">
+                <h2>Statements</h2>
+                <p>Statement archive loading...</p>
+              </div>
+            )}
+
+            {activeTab === 'fraud' && (
+              <div className="bank-card bank-glass">
+                <h2>Fraud Monitor</h2>
+                <p>No critical threats detected.</p>
+              </div>
+            )}
+
+            {activeTab === 'support' && (
+              <div className="bank-card bank-glass">
+                <h2>Support</h2>
+                <p>Support systems online.</p>
+              </div>
+            )}
           </section>
         </section>
       </div>

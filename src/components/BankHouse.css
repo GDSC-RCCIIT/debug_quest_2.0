@@ -4,7 +4,8 @@
   width: 100%;
   background-color: #050b14;
   color: #e2e8f0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: inherit;
 }
 
@@ -214,6 +215,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+    position: relative;
+  z-index: 20;
 }
 
 .bank-side-nav {
@@ -279,6 +282,7 @@
   gap: 1.5rem;
   overflow-y: auto;
   padding-right: 0.5rem;
+    min-height: 0;
 }
 
 .bank-main-content::-webkit-scrollbar {
