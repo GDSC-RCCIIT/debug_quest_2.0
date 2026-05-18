@@ -20,7 +20,8 @@ export default function TransactionsTable({ allTransactions }) {
     handleNextPage,
     handlePrevPage,
     handleFilterChange,
-    handleSearchChange
+    handleSearchChange,
+    totalPages
   } = useTransactions(allTransactions);
 
   return (
@@ -91,11 +92,11 @@ export default function TransactionsTable({ allTransactions }) {
         </table>
       </div>
       <div className="table-footer">
-        <span>Page {page} of 3</span>
+        <span>Page {page} of {totalPages}</span>
         <div className="pagination">
           <button onClick={handlePrevPage} disabled={page === 1}><ChevronLeft size={16} /></button>
           <button className="active">{page}</button>
-          <button onClick={handleNextPage} disabled={page >= 3}><ChevronRight size={16} /></button>
+          <button onClick={handleNextPage} disabled={page >= totalPages}><ChevronRight size={16} /></button>
         </div>
       </div>
       <style dangerouslySetInnerHTML={{__html: `

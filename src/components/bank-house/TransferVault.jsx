@@ -10,6 +10,14 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
   const handleTransfer = async () => {
     if (!amount || !selectedBeneficiary) return;
 
+    const transferAmount = parseFloat(amount);
+    
+    if (isNaN(transferAmount) || transferAmount <= 0 || transferAmount > balance) {
+      setToast('Insufficient Funds');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
     // Synchronous ref guard — blocks concurrent calls that fire before React
     // re-renders the isSubmitting state (e.g. rapid double-clicks).
     if (transferLockRef.current) return;
@@ -19,12 +27,17 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
     setToast('Transfer Initiated - Processing...');
 
     try {
-      await onTransfer(parseFloat(amount), selectedBeneficiary);
-      setAmount('');
-      setToast('Transfer Successful!');
+      const result = await onTransfer(transferAmount, selectedBeneficiary);
+      if (result?.success) {
+        setAmount('');
+        setToast('Transfer Successful!');
+      } else {
+        setToast(result?.message || 'Transfer Failed');
+      }
       setTimeout(() => setToast(null), 3500);
     } catch {
-      setToast(null);
+      setToast('Transfer Error');
+      setTimeout(() => setToast(null), 3500);
     } finally {
       transferLockRef.current = false;
       setIsSubmitting(false);
@@ -38,7 +51,9 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
           className={`absolute top-2 right-2 px-4 py-2 rounded shadow border ${
             toast.includes('Processing') 
               ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
-              : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
+              : (toast.includes('Insufficient') || toast.includes('Failed') || toast.includes('Error'))
+                ? 'bg-rose-500/20 text-rose-400 border-rose-500/50'
+                : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
           }`}
           style={{ zIndex: 50, transition: 'all 0.3s' }}
         >
@@ -79,6 +94,7 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
               placeholder="0.00" 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              onWheel={(e) => e.target.blur()}
             />
            <button
   className="max-btn"

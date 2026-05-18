@@ -2,6 +2,7 @@ const BALANCE_CACHE_KEY = 'bank_balance_cache_v2';
 const SERVER_BALANCE_HINT_KEY = 'bank_server_balance_hint_v2';
 const PENDING_TRANSFERS_KEY = 'bank_pending_transfers_v2';
 const BALANCE_BROADCAST_KEY = 'bank_balance_broadcast_v2';
+const TRANSACTIONS_CACHE_KEY = 'bank_transactions_cache_v2';
 
 function safeParse(rawValue) {
   if (!rawValue) return null;
@@ -103,6 +104,18 @@ export function publishBalanceBroadcast(balance, ledgerVersion) {
       updatedAt: Date.now(),
     }),
   );
+}
+
+export function hydrateCachedTransactions(fallbackTransactions) {
+  const cached = safeParse(window.localStorage.getItem(TRANSACTIONS_CACHE_KEY));
+  if (Array.isArray(cached)) {
+    return cached;
+  }
+  return fallbackTransactions;
+}
+
+export function writeCachedTransactions(transactions) {
+  window.localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(transactions));
 }
 
 export function getBalanceBroadcastKey() {

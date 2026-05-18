@@ -64,6 +64,9 @@ export default function BankHouse({ onBack }) {
 
   // Fake glitch effect for total balance
   useEffect(() => {
+    // Ensure glitchText matches balance immediately
+    setGlitchText(balance.toLocaleString('en-US', {minimumFractionDigits: 2}));
+
     const interval = setInterval(() => {
       if (Math.random() > 0.8) {
         setGlitchText((prev) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useTransactions(initialData) {
   const [searchTerm, setSearchTerm] = useState(''); 
@@ -18,7 +18,7 @@ export function useTransactions(initialData) {
       
       const filtered = initialData.filter(tx => {
         const matchesDate = true; 
-        const searchLower = currentSearch.toLowerCase();
+        const searchLower = (currentSearch || '').toLowerCase();
         const matchesSearch = !currentSearch || 
           tx.id.toLowerCase().includes(searchLower) || 
           tx.recipient.toLowerCase().includes(searchLower);
@@ -61,6 +61,10 @@ export function useTransactions(initialData) {
     fetchTransactions(1, dateRange, term); 
   };
 
+  useEffect(() => {
+    fetchTransactions(page, dateRange, searchTerm);
+  }, [initialData]);
+
   return {
     data,
     page,
@@ -70,6 +74,7 @@ export function useTransactions(initialData) {
     handleNextPage,
     handlePrevPage,
     handleFilterChange,
-    handleSearchChange 
+    handleSearchChange,
+    totalPages: Math.ceil(initialData.length / 3) || 1
   };
 }
