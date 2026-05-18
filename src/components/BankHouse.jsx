@@ -1,5 +1,5 @@
 import './BankHouse.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   Building2, Wallet, Activity, Users, FileText, 
   ShieldAlert, LifeBuoy, Bell, User, ShieldCheck, 
@@ -13,32 +13,58 @@ import TransferVault from './bank-house/TransferVault';
 import BeneficiariesPanel from './bank-house/BeneficiariesPanel';
 
 export default function BankHouse({ onBack }) {
-  const [activeTab, setActiveTab] = useState('dashboard')
-  
-  
-  const { balance, savings, transferFunds, mockTransactions, mockBeneficiaries } = useBankData();
+  const { 
+    balance, 
+    savings, 
+    transferFunds, 
+    mockTransactions, 
+    mockBeneficiaries 
+  } = useBankData();
+
+  // 1. Fallback data for the dynamic spending bar chart
+  const dailySpending = [
+    { label: 'Mon', height: '40%', amount: 1200, isToday: false },
+    { label: 'Tue', height: '60%', amount: 3100, isToday: false },
+    { label: 'Wed', height: '35%', amount: 850, isToday: false },
+    { label: 'Thu', height: '80%', amount: 4200, isToday: false },
+    { label: 'Fri', height: '100%', amount: 5600, isToday: true },
+    { label: 'Sat', height: '45%', amount: 1900, isToday: false }
+  ];
+
+  // 2. Fallback amount for the monthly spend card 
+  const monthlySpend = 42850.20;
+
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedBen, setSelectedBen] = useState('');
-  const totalFunds = balance + savings;
-const [glitchText, setGlitchText] = useState(() => (balance + savings).toLocaleString('en-US', {minimumFractionDigits: 2}));
- 
-useEffect(() => {
-  const interval = setInterval(() => {
-    if (Math.random() > 0.8) {
-      setGlitchText((prev) => {
-        const chars = prev.split('')
-        const randIdx = Math.floor(Math.random() * chars.length)
-        if(chars[randIdx] !== '.' && chars[randIdx] !== ',') {
-          chars[randIdx] = Math.floor(Math.random() * 9).toString()
-        }
-        return chars.join('')
-      })
-      
   
-      setTimeout(() => setGlitchText((totalFunds).toLocaleString('en-US', {minimumFractionDigits: 2})), 150)
-    }
-  }, 2000)
-  return () => clearInterval(interval)
-}, [totalFunds]) 
+  // ... rest of your state and effects remain exactly the same
+
+  // Fixed calculated aggregate funds value
+  const totalFunds = balance + savings;
+  const [glitchText, setGlitchText] = useState(() => totalFunds.toLocaleString('en-US', {minimumFractionDigits: 2}));
+  
+  // Update display text smoothly when underlying calculations fetch
+  useEffect(() => {
+    setGlitchText(totalFunds.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+  }, [totalFunds]);
+
+  // Fake glitch effect for total balance
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.8) {
+        setGlitchText((prev) => {
+          const chars = prev.split('')
+          const randIdx = Math.floor(Math.random() * chars.length)
+          if(chars[randIdx] !== '.' && chars[randIdx] !== ',') {
+            chars[randIdx] = Math.floor(Math.random() * 9).toString()
+          }
+          return chars.join('')
+        })
+        setTimeout(() => setGlitchText((totalFunds).toLocaleString('en-US', {minimumFractionDigits: 2})), 150)
+      }
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [totalFunds])
 
   return (
     <main className="bank-house-shell">
@@ -112,7 +138,7 @@ useEffect(() => {
               </div>
               <div className="bank-card summary-card bank-glass">
                 <h3>Monthly Spend</h3>
-                <div className="balance-value">₮ 42,850.20</div>
+                <div className="balance-value">₮ {monthlySpend.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                 <span className="trend negative">+8.2% vs last month</span>
               </div>
             </div>
@@ -151,22 +177,25 @@ useEffect(() => {
                 </div>
 
                 <div className="bank-card bank-glass chart-card">
-                  <h2>Spending Overview</h2>
-                  <div className="chart-placeholder">
-                    {/* CSS driven simple bar chart */}
-                    <div className="bar-chart">
-                      <div className="bar" style={{height: '40%'}}></div>
-                      <div className="bar" style={{height: '60%'}}></div>
-                      <div className="bar" style={{height: '35%'}}></div>
-                      <div className="bar" style={{height: '80%'}}></div>
-                      <div className="bar active-bar" style={{height: '100%'}}></div>
-                      <div className="bar" style={{height: '45%'}}></div>
-                    </div>
-                    <div className="chart-labels">
-                      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-                    </div>
-                  </div>
-                </div>
+  <h2>Spending Overview</h2>
+  <div className="chart-placeholder">
+    <div className="bar-chart">
+      {dailySpending && dailySpending.map((day, idx) => (
+        <div 
+          key={idx}
+          className={`bar ${day.isToday ? 'active-bar' : ''}`}
+          style={{ height: day.height }}
+          title={`₮ ${day.amount.toLocaleString()}`}
+        />
+      ))}
+    </div>
+    <div className="chart-labels">
+      {dailySpending && dailySpending.map((day, idx) => (
+        <span key={idx}>{day.label}</span>
+      ))}
+    </div>
+  </div>
+</div>
 
                 <BeneficiariesPanel 
                     beneficiaries={mockBeneficiaries} 
