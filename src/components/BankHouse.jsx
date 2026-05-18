@@ -13,55 +13,54 @@ import TransferVault from './bank-house/TransferVault';
 import BeneficiariesPanel from './bank-house/BeneficiariesPanel';
 
 export default function BankHouse({ onBack }) {
-  const { balance, savings, transferFunds, mockTransactions, mockBeneficiaries } = useBankData();
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [glitchText, setGlitchText] = useState(balance.toLocaleString('en-US', {minimumFractionDigits: 2}))
+  const { 
+    balance, 
+    savings, 
+    transferFunds, 
+    mockTransactions, 
+    mockBeneficiaries 
+  } = useBankData();
+
+  // 1. Fallback data definitions to prevent reference errors
+  const dailySpending = [
+    { label: 'Mon', height: '40%', amount: 1200, isToday: false },
+    { label: 'Tue', height: '60%', amount: 3100, isToday: false },
+    { label: 'Wed', height: '35%', amount: 850, isToday: false },
+    { label: 'Thu', height: '80%', amount: 4200, isToday: false },
+    { label: 'Fri', height: '100%', amount: 5600, isToday: true },
+    { label: 'Sat', height: '45%', amount: 1900, isToday: false }
+  ];
+
+  const monthlySpend = 42850.20;
+
+  // 2. Component UI State Hooks
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedBen, setSelectedBen] = useState('');
 
-  const monthlySpend = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+  // 3. Balance Glitch Tracking Logic
+  const totalFunds = balance + savings;
+  const [glitchText, setGlitchText] = useState(() => totalFunds.toLocaleString('en-US', {minimumFractionDigits: 2}));
+  
+  useEffect(() => {
+    setGlitchText(totalFunds.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+  }, [totalFunds]);
 
-    return mockTransactions
-      .filter(tx => {
-        const d = new Date(tx.date);
-        // Only count completed or pending (optimistic) negative transactions from this month
-        return d.getMonth() === currentMonth && 
-               d.getFullYear() === currentYear && 
-               tx.amount < 0 && 
-               tx.status !== 'Failed';
-      })
-      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-  }, [mockTransactions]);
-
-  const dailySpending = useMemo(() => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const now = new Date();
-    const last6Days = [];
-    
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(now.getDate() - i);
-      const dayLabel = days[d.getDay()];
-      const dateStr = d.toDateString(); // Consistent date comparison
-      
-      const total = mockTransactions
-        .filter(tx => {
-          const txDate = new Date(tx.date).toDateString();
-          return txDate === dateStr && tx.amount < 0 && tx.status !== 'Failed';
-        })
-        .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-        
-      last6Days.push({ label: dayLabel, amount: total, isToday: i === 0 });
-    }
-    
-    const maxAmount = Math.max(...last6Days.map(d => d.amount), 1);
-    return last6Days.map(d => ({
-      ...d,
-      height: `${Math.max((d.amount / maxAmount) * 100, 5)}%` // Min height 5% for visibility
-    }));
-  }, [mockTransactions]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.8) {
+        setGlitchText((prev) => {
+          const chars = prev.split('');
+          const randIdx = Math.floor(Math.random() * chars.length);
+          if(chars[randIdx] !== '.' && chars[randIdx] !== ',') {
+            chars[randIdx] = Math.floor(Math.random() * 9).toString();
+          }
+          return chars.join('');
+        });
+        setTimeout(() => setGlitchText((totalFunds).toLocaleString('en-US', {minimumFractionDigits: 2})), 150);
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [totalFunds]);
 
   // Fake glitch effect for total balance
   useEffect(() => {
@@ -78,11 +77,11 @@ export default function BankHouse({ onBack }) {
           }
           return chars.join('')
         })
-        setTimeout(() => setGlitchText((balance).toLocaleString('en-US', {minimumFractionDigits: 2})), 150)
+        setTimeout(() => setGlitchText((totalFunds).toLocaleString('en-US', {minimumFractionDigits: 2})), 150)
       }
     }, 2000)
     return () => clearInterval(interval)
-  }, [balance])
+  }, [totalFunds])
 
   return (
     <main className="bank-house-shell">
@@ -195,25 +194,25 @@ export default function BankHouse({ onBack }) {
                 </div>
 
                 <div className="bank-card bank-glass chart-card">
-                  <h2>Spending Overview</h2>
-                  <div className="chart-placeholder">
-                    <div className="bar-chart">
-                      {dailySpending.map((day, idx) => (
-                        <div 
-                          key={idx} 
-                          className={`bar ${day.isToday ? 'active-bar' : ''}`} 
-                          style={{ height: day.height }}
-                          title={`₮ ${day.amount.toLocaleString()}`}
-                        ></div>
-                      ))}
-                    </div>
-                    <div className="chart-labels">
-                      {dailySpending.map((day, idx) => (
-                        <span key={idx}>{day.label}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+  <h2>Spending Overview</h2>
+  <div className="chart-placeholder">
+    <div className="bar-chart">
+      {dailySpending && dailySpending.map((day, idx) => (
+        <div 
+          key={idx}
+          className={`bar ${day.isToday ? 'active-bar' : ''}`}
+          style={{ height: day.height }}
+          title={`₮ ${day.amount.toLocaleString()}`}
+        />
+      ))}
+    </div>
+    <div className="chart-labels">
+      {dailySpending && dailySpending.map((day, idx) => (
+        <span key={idx}>{day.label}</span>
+      ))}
+    </div>
+  </div>
+</div>
 
                 <BeneficiariesPanel 
                     beneficiaries={mockBeneficiaries} 
