@@ -1,5 +1,5 @@
 import './BankHouse.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   Building2, Wallet, Activity, Users, FileText, 
   ShieldAlert, LifeBuoy, Bell, User, ShieldCheck, 
@@ -13,14 +13,61 @@ import TransferVault from './bank-house/TransferVault';
 import BeneficiariesPanel from './bank-house/BeneficiariesPanel';
 
 export default function BankHouse({ onBack }) {
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [glitchText, setGlitchText] = useState('8,452,190.45')
-  
   const { balance, savings, transferFunds, mockTransactions, mockBeneficiaries } = useBankData();
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [glitchText, setGlitchText] = useState(balance.toLocaleString('en-US', {minimumFractionDigits: 2}))
   const [selectedBen, setSelectedBen] = useState('');
+
+  const monthlySpend = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    return mockTransactions
+      .filter(tx => {
+        const d = new Date(tx.date);
+        // Only count completed or pending (optimistic) negative transactions from this month
+        return d.getMonth() === currentMonth && 
+               d.getFullYear() === currentYear && 
+               tx.amount < 0 && 
+               tx.status !== 'Failed';
+      })
+      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  }, [mockTransactions]);
+
+  const dailySpending = useMemo(() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const now = new Date();
+    const last6Days = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(now.getDate() - i);
+      const dayLabel = days[d.getDay()];
+      const dateStr = d.toDateString(); // Consistent date comparison
+      
+      const total = mockTransactions
+        .filter(tx => {
+          const txDate = new Date(tx.date).toDateString();
+          return txDate === dateStr && tx.amount < 0 && tx.status !== 'Failed';
+        })
+        .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+        
+      last6Days.push({ label: dayLabel, amount: total, isToday: i === 0 });
+    }
+    
+    const maxAmount = Math.max(...last6Days.map(d => d.amount), 1);
+    return last6Days.map(d => ({
+      ...d,
+      height: `${Math.max((d.amount / maxAmount) * 100, 5)}%` // Min height 5% for visibility
+    }));
+  }, [mockTransactions]);
 
   // Fake glitch effect for total balance
   useEffect(() => {
+    // Ensure glitchText matches balance immediately
+    setGlitchText(balance.toLocaleString('en-US', {minimumFractionDigits: 2}));
+
     const interval = setInterval(() => {
       if (Math.random() > 0.8) {
         setGlitchText((prev) => {
@@ -109,7 +156,7 @@ export default function BankHouse({ onBack }) {
               </div>
               <div className="bank-card summary-card bank-glass">
                 <h3>Monthly Spend</h3>
-                <div className="balance-value">₮ 42,850.20</div>
+                <div className="balance-value">₮ {monthlySpend.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                 <span className="trend negative">+8.2% vs last month</span>
               </div>
             </div>
@@ -150,17 +197,20 @@ export default function BankHouse({ onBack }) {
                 <div className="bank-card bank-glass chart-card">
                   <h2>Spending Overview</h2>
                   <div className="chart-placeholder">
-                    {/* CSS driven simple bar chart */}
                     <div className="bar-chart">
-                      <div className="bar" style={{height: '40%'}}></div>
-                      <div className="bar" style={{height: '60%'}}></div>
-                      <div className="bar" style={{height: '35%'}}></div>
-                      <div className="bar" style={{height: '80%'}}></div>
-                      <div className="bar active-bar" style={{height: '100%'}}></div>
-                      <div className="bar" style={{height: '45%'}}></div>
+                      {dailySpending.map((day, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`bar ${day.isToday ? 'active-bar' : ''}`} 
+                          style={{ height: day.height }}
+                          title={`₮ ${day.amount.toLocaleString()}`}
+                        ></div>
+                      ))}
                     </div>
                     <div className="chart-labels">
-                      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                      {dailySpending.map((day, idx) => (
+                        <span key={idx}>{day.label}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
