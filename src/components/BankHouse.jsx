@@ -21,7 +21,7 @@ export default function BankHouse({ onBack }) {
     mockBeneficiaries 
   } = useBankData();
 
-  // 1. Fallback data for the dynamic spending bar chart
+  // 1. Fallback data definitions to prevent reference errors
   const dailySpending = [
     { label: 'Mon', height: '40%', amount: 1200, isToday: false },
     { label: 'Tue', height: '60%', amount: 3100, isToday: false },
@@ -31,21 +31,35 @@ export default function BankHouse({ onBack }) {
     { label: 'Sat', height: '45%', amount: 1900, isToday: false }
   ];
 
-  // 2. Fallback amount for the monthly spend card 
   const monthlySpend = 42850.20;
 
+  // 2. Component UI State Hooks
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedBen, setSelectedBen] = useState('');
-  
-  // ... rest of your state and effects remain exactly the same
 
-  // Fixed calculated aggregate funds value
+  // 3. Balance Glitch Tracking Logic
   const totalFunds = balance + savings;
   const [glitchText, setGlitchText] = useState(() => totalFunds.toLocaleString('en-US', {minimumFractionDigits: 2}));
   
-  // Update display text smoothly when underlying calculations fetch
   useEffect(() => {
     setGlitchText(totalFunds.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+  }, [totalFunds]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.8) {
+        setGlitchText((prev) => {
+          const chars = prev.split('');
+          const randIdx = Math.floor(Math.random() * chars.length);
+          if(chars[randIdx] !== '.' && chars[randIdx] !== ',') {
+            chars[randIdx] = Math.floor(Math.random() * 9).toString();
+          }
+          return chars.join('');
+        });
+        setTimeout(() => setGlitchText((totalFunds).toLocaleString('en-US', {minimumFractionDigits: 2})), 150);
+      }
+    }, 2000);
+    return () => clearInterval(interval);
   }, [totalFunds]);
 
   // Fake glitch effect for total balance
