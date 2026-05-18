@@ -49,7 +49,7 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
       {toast && (
         <div 
           className={`absolute top-2 right-2 px-4 py-2 rounded shadow border ${
-            toast.includes('Processing') 
+           toast?.includes('Processing')
               ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
               : (toast.includes('Insufficient') || toast.includes('Failed') || toast.includes('Error'))
                 ? 'bg-rose-500/20 text-rose-400 border-rose-500/50'
@@ -96,7 +96,8 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
               onChange={(e) => setAmount(e.target.value)}
               onWheel={(e) => e.target.blur()}
             />
-           <button
+          <button
+  type="button"
   className="max-btn"
   onClick={() => setAmount(balance.toString())}
   disabled={isSubmitting}
@@ -105,7 +106,13 @@ export default function TransferVault({ balance, beneficiaries, onTransfer, sele
 </button>
           </div>
         </div>
-        <button className="bank-btn primary-btn w-full flex items-center justify-center gap-2" style={{ marginTop: '1rem' }} onClick={handleTransfer} disabled={isSubmitting}>
+        <button
+  type="button"
+  className="bank-btn primary-btn w-full flex items-center justify-center gap-2"
+  style={{ marginTop: '1rem' }}
+  onClick={handleTransfer}
+  disabled={isSubmitting}
+>
           <Send size={18} /> INITIALIZE TRANSFER
         </button>
       </div>
